@@ -1,0 +1,32 @@
+# Datasets
+CICIoMT24/
+WINDOWS_CPLUS/
+CSV_SPLIT_CPLUS/
+CSV_SPLIT/
+data/
+datasets/
+*.csv
+*.pcap
+*.pcapng
+*.parquet
+
+# Training artifacts
+runs/
+*.npy
+*.npz
+*.joblib
+*.pkl
+*.zip
+*.jsonl
+*.log
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Secrets
+.env
+.env.*
+!.env.example
