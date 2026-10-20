@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .checkpoint_manager import CheckpointSink
-from .dataset_validator import EXPECTED, sha256, validate_dataset
+from .dataset_validator import EXPECTED, manifest_root_for, sha256, validate_dataset
 from .setup_colab import EXPECTED_VERSIONS, repo_inventory, runtime_info
 
 
@@ -73,8 +73,8 @@ def preflight(repo: Path, windows: Path, local_runs: Path, drive_root: Path,
         return {"status": "FAIL", "checks": checks, "missing_repo_files": inventory["missing"]}
     training = _training(repo)
     info = runtime_info(local_runs.parent if local_runs.parent.exists() else Path("/content"))
-    checks["python_supported"] = tuple(sys.version_info[:2]) in ((3, 10), (3, 11), (3, 12))
-    checks["stage5_scientific_versions"] = info["scientific_versions_match_stage5"]
+    checks["python_supported"] = tuple(sys.version_info[:2]) in ((3, 10), (3, 11), (3, 12), (3, 13))
+    checks["selected_scientific_profile"] = info["scientific_versions_match_selected_profile"]
     checks["unit_tests_current_code"] = bool(
         unit_test_evidence and unit_test_evidence.get("passed") and
         unit_test_evidence.get("training_sha256") == sha256(repo / "huyen_code" / "ciciomt24_training.py"))
@@ -107,7 +107,7 @@ def preflight(repo: Path, windows: Path, local_runs: Path, drive_root: Path,
             probe = {}
         checks["svm_technical_probe"] = probe.get("status") == "PASS_TECHNICAL_ONLY" and probe.get("config") == spec.config and probe.get("test_csv_rows_read") == 0
     if dataset is not None:
-        manifest_root = windows.parent / "CSV_SPLIT_CPLUS"
+        manifest_root = manifest_root_for(windows, repo)
         store = training.WindowStore(windows, split_root=manifest_root)
         counts = EXPECTED[spec.config]
         available = info["ram_available_bytes"]
@@ -182,7 +182,7 @@ def run_one(repo: Path, windows: Path, local_runs: Path, drive_root: Path,
     original_store = training.WindowStore
     original_progress = training.RunProgress
     original_fit = training.fit_final_classifier
-    manifest_root = windows.parent / "CSV_SPLIT_CPLUS"
+    manifest_root = manifest_root_for(windows, repo)
 
     def portable_store(root):
         return original_store(root, split_root=manifest_root)

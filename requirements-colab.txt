@@ -1,6 +1,8 @@
 # Stage 5 scientific versions; install only after checking the actual Colab Python.
-# Prepared for Python 3.10–3.12. Do not downgrade the Colab interpreter.
-numpy==1.26.4
+# Python 3.13 needs NumPy 2.x; all other scientific pins remain Stage 5 versions.
+# This is a distinct environment profile, not numerical equivalence to Stage 5.
+numpy==1.26.4; python_version < "3.13"
+numpy==2.2.6; python_version >= "3.13" and python_version < "3.14"
 pandas==2.3.3
 scipy==1.15.3
 scikit-learn==1.7.2

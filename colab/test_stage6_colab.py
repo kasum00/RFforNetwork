@@ -13,9 +13,13 @@ from pathlib import Path
 from unittest.mock import patch
 
 from colab.checkpoint_manager import CheckpointSink, publish_completed_checkpoint
-from colab.dataset_validator import EXPECTED, inspect_archive, validate_dataset
+from colab.dataset_validator import (EXPECTED, _inventory_precheck, inspect_archive,
+    manifest_root_for, prepare_dataset, prepare_drive_folder_dataset, prepare_mounted_folder_dataset,
+    validate_dataset)
 from colab.experiment_launcher import RunSpec, preflight, rf_empirical_required, run_one
-from colab.setup_colab import repo_inventory
+from colab.setup_colab import repo_inventory, selected_versions
+from colab.drive_manager import (FOLDER_MIME, SHORTCUT_MIME, discover_shared_dataset,
+                                 inventory_window_files, list_children)
 
 
 REPO = Path(__file__).resolve().parents[1]
@@ -31,6 +35,11 @@ class NotebookAndManifestTests(unittest.TestCase):
             ast.parse("".join(cell["source"]))
         self.assertIn('MODE = "dry_run"', "".join(cells[7]["source"]))
         self.assertIn("if MODE == 'full_train':", "".join(cells[9]["source"]))
+        self.assertIn("expected = selected_versions()", "".join(cells[4]["source"]))
+        self.assertIn("discover_shared_dataset", "".join(cells[5]["source"]))
+        self.assertIn("DATASET_READY = False", "".join(cells[5]["source"]))
+        self.assertIn("DATASET_READY = DATASET_READY and", "".join(cells[6]["source"]))
+        self.assertIn("if not DATASET_READY:", "".join(cells[8]["source"]))
 
     def test_repo_inventory(self):
         self.assertTrue(repo_inventory(REPO)["pass"])
@@ -176,6 +185,182 @@ class SafetyTests(unittest.TestCase):
             self.assertTrue((path / "result.json").is_file())
             self.assertEqual((training.WindowStore, training.RunProgress,
                               training.fit_final_classifier), original_symbols)
+
+
+class FakeRequest:
+    def __init__(self, value=None, error=None):
+        self.value, self.error = value, error
+
+    def execute(self):
+        if self.error:
+            raise self.error
+        return self.value
+
+
+class FakeDrive:
+    def __init__(self, items, pages):
+        self.items, self.pages = items, pages
+
+    def files(self):
+        return self
+
+    def get(self, *, fileId, **unused):
+        return FakeRequest(self.items[fileId])
+
+    def list(self, *, q, pageToken=None, **unused):
+        parent = q.split("'")[1]
+        page = self.pages[(parent, pageToken)]
+        return FakeRequest(page)
+
+
+class FolderRegressionTests(unittest.TestCase):
+    def _fake_drive(self, *, shortcut=False, paged=False):
+        parent = {"id": "parent", "name": "shared", "mimeType": FOLDER_MIME}
+        windows = {"id": "win", "name": "WINDOWS_CPLUS", "mimeType": FOLDER_MIME}
+        audit = {"id": "audit", "name": "CSV_SPLIT_CPLUS", "mimeType": FOLDER_MIME}
+        if shortcut:
+            alias = {"id": "alias", "name": "WINDOWS_CPLUS", "mimeType": SHORTCUT_MIME,
+                     "shortcutDetails": {"targetId": "win", "targetMimeType": FOLDER_MIME}}
+        else:
+            alias = windows
+        if paged:
+            pages = {("parent", None): {"files": [alias], "nextPageToken": "next"},
+                     ("parent", "next"): {"files": [audit]}}
+        else:
+            pages = {("parent", None): {"files": [alias, audit]}}
+        pages[("win", None)] = {"files": [
+            {"id": "summary", "name": "window_run_summary.json", "mimeType": "application/json",
+             "size": "2", "md5Checksum": "99914b932bd37a50b983c5e7c90ae93b"},
+            {"id": "fw", "name": "FW_512_FS_8", "mimeType": FOLDER_MIME}]}
+        pages[("fw", None)] = {"files": [
+            {"id": "csv", "name": "example_windows.csv", "mimeType": "text/csv",
+             "size": "3", "md5Checksum": "900150983cd24fb0d6963f7d28e17f72"}]}
+        items = {item["id"]: item for item in (parent, windows, audit)}
+        return FakeDrive(items, pages)
+
+    def test_shared_parent_has_two_folders_and_no_zip(self):
+        found = discover_shared_dataset("parent", service=self._fake_drive())
+        self.assertEqual(found["mode"], "folder")
+        self.assertTrue(found["audit_folder_present"])
+        self.assertEqual(found["zips"], [])
+        self.assertEqual(found["windows_folder"]["id"], "win")
+
+    def test_api_only_folder_pagination_and_recursive_inventory(self):
+        service = self._fake_drive(paged=True)
+        found = discover_shared_dataset("parent", service=service)
+        self.assertEqual(len(found["children"]), 2)
+        paths = [x["relative_path"] for x in inventory_window_files(service, "win")]
+        self.assertEqual(paths, ["FW_512_FS_8/example_windows.csv", "window_run_summary.json"])
+
+    def test_google_drive_shortcut_resolves_target_id(self):
+        found = discover_shared_dataset("parent", service=self._fake_drive(shortcut=True))
+        self.assertEqual(found["windows_folder"]["id"], "win")
+
+    def test_drive_permission_failure_is_explicit(self):
+        class Denied(Exception):
+            resp = type("Resp", (), {"status": 403})()
+        service = self._fake_drive()
+        service.get = lambda **unused: FakeRequest(error=Denied())
+        with self.assertRaisesRegex(PermissionError, "Viewer access"):
+            discover_shared_dataset("parent", service=service)
+
+    def test_missing_fw_or_csv_and_metadata_fail(self):
+        with self.assertRaisesRegex(FileNotFoundError, "322"):
+            _inventory_precheck([{"relative_path": "window_run_summary.json"}])
+        one_config = [{"relative_path": "window_run_summary.json"}]
+        one_config += [{"relative_path": f"FW_512_FS_8/seg_{index:03d}_windows.csv"}
+                       for index in range(322)]
+        with self.assertRaisesRegex(FileNotFoundError, "configuration folder"):
+            _inventory_precheck(one_config)
+        with tempfile.TemporaryDirectory() as temp:
+            with self.assertRaisesRegex(FileNotFoundError, "split_manifest"):
+                manifest_root_for(Path(temp) / "WINDOWS_CPLUS", Path(temp))
+            portable = Path(temp) / "configs" / "cplus_manifest"
+            portable.mkdir(parents=True)
+            (portable / "split_manifest.csv").write_text("fixture", encoding="utf-8")
+            (portable / "validation.json").write_text("{}", encoding="utf-8")
+            self.assertEqual(manifest_root_for(Path(temp) / "WINDOWS_CPLUS", Path(temp)), portable)
+
+    def test_python_profiles_keep_stage5_and_accept_313(self):
+        self.assertEqual(selected_versions((3, 12))["numpy"], "1.26.4")
+        self.assertEqual(selected_versions((3, 13))["numpy"], "2.2.6")
+        self.assertEqual(selected_versions((3, 13))["scikit-learn"], "1.7.2")
+        with self.assertRaises(RuntimeError):
+            selected_versions((3, 14))
+
+    def test_mounted_windows_folder_staging_and_rerun_without_copy(self):
+        with tempfile.TemporaryDirectory(dir=REPO / "colab") as temp:
+            base = Path(temp)
+            source = base / "drive" / "WINDOWS_CPLUS"
+            (source / "FW_512_FS_8").mkdir(parents=True)
+            (source / "window_run_summary.json").write_bytes(b"{}")
+            (source / "FW_512_FS_8" / "example_windows.csv").write_bytes(b"abc")
+            output = base / "content" / "CICIoMT24" / "WINDOWS_CPLUS"
+            valid = {"status": "PASS_METADATA_SCHEMA", "csv_files": 322,
+                     "config_directories": 4, "counts": EXPECTED, "missing_files": []}
+            with patch("colab.dataset_validator._inventory_precheck"), \
+                 patch("colab.dataset_validator._MIN_TRAINING_DISK_RESERVE", 0), \
+                 patch("colab.dataset_validator.validate_dataset", return_value=valid):
+                first = prepare_mounted_folder_dataset(REPO, source, output_root=output)
+                self.assertEqual(first["action"], "prepared_verified")
+                self.assertEqual((output / "FW_512_FS_8" / "example_windows.csv").read_bytes(), b"abc")
+                with patch("shutil.copyfile", side_effect=AssertionError("re-download")):
+                    second = prepare_dataset(REPO, output_root=output)  # Cell 6 rerun branch.
+                self.assertEqual(second["action"], "reused_verified")
+
+    def test_api_transfer_resume_verified_files_and_no_flow_csv(self):
+        with tempfile.TemporaryDirectory(dir=REPO / "colab") as temp:
+            base = Path(temp)
+            output = base / "CICIoMT24" / "WINDOWS_CPLUS"
+            entries = [{"id": "summary", "relative_path": "window_run_summary.json",
+                        "size": 2, "md5Checksum": "99914b932bd37a50b983c5e7c90ae93b"},
+                       {"id": "csv", "relative_path": "FW_512_FS_8/example_windows.csv",
+                        "size": 3, "md5Checksum": "900150983cd24fb0d6963f7d28e17f72"}]
+            payload = {"summary": b"{}", "csv": b"abc"}
+            calls = []
+            def fake_download(service, item, path):
+                calls.append(item["id"])
+                if item["id"] == "csv" and calls.count("csv") == 1:
+                    raise ConnectionError("fixture interruption before this file")
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(payload[item["id"]])
+            valid = {"status": "PASS_METADATA_SCHEMA", "csv_files": 322,
+                     "config_directories": 4, "counts": EXPECTED, "missing_files": []}
+            with patch("colab.drive_manager.inventory_window_files", return_value=entries), \
+                 patch("colab.drive_manager.download_drive_file", side_effect=fake_download), \
+                 patch("colab.dataset_validator._inventory_precheck"), \
+                 patch("colab.dataset_validator._MIN_TRAINING_DISK_RESERVE", 0), \
+                 patch("colab.dataset_validator.validate_dataset", return_value=valid):
+                from colab.dataset_validator import prepare_drive_folder_dataset as prepare
+                with self.assertRaises(ConnectionError):
+                    prepare(REPO, "win", object(), output_root=output)
+                self.assertTrue((output.parent.with_name("CICIoMT24.incomplete") / "WINDOWS_CPLUS" /
+                                 "window_run_summary.json").is_file())
+                result = prepare(REPO, "win", object(), output_root=output)
+                self.assertEqual(result["transferred_files"], 1)
+                self.assertEqual(calls, ["summary", "csv", "csv"])
+                self.assertFalse((output.parent / "CSV_SPLIT_CPLUS").exists())
+
+    def test_unrecognized_incomplete_and_low_disk_stop(self):
+        with tempfile.TemporaryDirectory(dir=REPO / "colab") as temp:
+            base = Path(temp)
+            source = base / "WINDOWS_CPLUS"
+            source.mkdir()
+            (source / "window_run_summary.json").write_bytes(b"{}")
+            (source / "FW_512_FS_8").mkdir()
+            (source / "FW_512_FS_8" / "example_windows.csv").write_bytes(b"abc")
+            output = base / "new" / "CICIoMT24" / "WINDOWS_CPLUS"
+            incomplete = output.parent.with_name("CICIoMT24.incomplete")
+            incomplete.mkdir(parents=True)
+            with patch("colab.dataset_validator._inventory_precheck"):
+                with self.assertRaisesRegex(FileExistsError, "Unrecognized"):
+                    prepare_mounted_folder_dataset(REPO, source, output_root=output)
+            incomplete.rmdir()
+            with patch("colab.dataset_validator._inventory_precheck"), \
+                 patch("colab.dataset_validator._MIN_TRAINING_DISK_RESERVE", 8 * 1024**3), \
+                 patch("colab.dataset_validator.shutil.disk_usage", return_value=type("Disk", (), {"free": 1})()):
+                with self.assertRaisesRegex(OSError, "short by"):
+                    prepare_mounted_folder_dataset(REPO, source, output_root=output)
 
 
 if __name__ == "__main__":

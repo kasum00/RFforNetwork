@@ -79,6 +79,14 @@ def _copy_readonly_metadata(repo: Path, target: Path) -> None:
         shutil.copy2(source / name, target / name)
 
 
+def manifest_root_for(window_root: Path, repo: Path) -> Path:
+    """Flow CSVs are not required for training; use the portable C+ manifest."""
+    for candidate in (window_root.parent / "CSV_SPLIT_CPLUS", repo / "configs" / "cplus_manifest"):
+        if all((candidate / name).is_file() for name in ("split_manifest.csv", "validation.json")):
+            return candidate
+    raise FileNotFoundError("C+ split_manifest.csv/validation.json absent locally and in repository")
+
+
 def validate_dataset(window_root: Path, repo: Path, *, all_headers: bool = True) -> dict:
     """Checks approved manifest, 322-file inventory/schema, not Test feature rows."""
     import sys
@@ -87,7 +95,7 @@ def validate_dataset(window_root: Path, repo: Path, *, all_headers: bool = True)
         sys.path.insert(0, source_path)
     import ciciomt24_sliding_window as sw
     import ciciomt24_training as training
-    manifest_root = window_root.parent / "CSV_SPLIT_CPLUS"
+    manifest_root = manifest_root_for(window_root, repo)
     segments = sw.load_manifest(manifest_root)
     sw.verify_split_artifacts(manifest_root, segments)
     computed = sw.expected_window_table(segments)
@@ -95,6 +103,12 @@ def validate_dataset(window_root: Path, repo: Path, *, all_headers: bool = True)
         fw, fs = map(int, (config.split("_")[1], config.split("_")[3]))
         if computed[f"FW{fw}_FS{fs}"] != roles:
             raise ValueError(f"Approved count mismatch for {config}")
+    expected_paths = [sw._expected_window_output_path(window_root, segment, fw, fs)
+                      for segment in segments for fw, fs in sw.WINDOW_CONFIGS
+                      if sw.window_count(segment.flow_count, fw, fs)]
+    missing = [str(path.relative_to(window_root)) for path in expected_paths if not path.is_file()]
+    if missing:
+        raise FileNotFoundError(f"Missing {len(missing)} window CSV(s): {missing[:20]}")
     store = training.WindowStore(window_root, split_root=manifest_root)
     if all_headers:
         for files in store.files.values():
@@ -114,6 +128,9 @@ def validate_dataset(window_root: Path, repo: Path, *, all_headers: bool = True)
             "label_origin": "SCENARIO_PROXY", "features": len(training.FEATURE_NAMES),
             "output_columns": 394, "metadata_and_label_columns": 14,
             "csv_files": len(inventory), "manifest_segments": len(segments),
+            "config_directories": sum((window_root / config).is_dir() for config in EXPECTED),
+            "dataset_path": str(window_root), "manifest_path": str(manifest_root),
+            "missing_files": [],
             "proxy_window_counts": sw.expected_windows_by_proxy_label(segments),
             "dataset_fingerprint_sha256": hashlib.sha256(fingerprint_payload).hexdigest(),
             "fingerprint_scope": "manifest+summary+CSV relative paths/sizes; not full CSV content hash",
@@ -122,14 +139,163 @@ def validate_dataset(window_root: Path, repo: Path, *, all_headers: bool = True)
             "stage42_full_readback_reused": True}
 
 
+def _md5(path: Path) -> str:
+    digest = hashlib.md5()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(8 * 1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _inventory_precheck(entries: list[dict]) -> None:
+    paths = [item["relative_path"] for item in entries]
+    if "window_run_summary.json" not in paths:
+        raise FileNotFoundError("WINDOWS_CPLUS/window_run_summary.json is missing")
+    csv_paths = [path for path in paths if path.endswith("_windows.csv")]
+    if len(csv_paths) != 322:
+        raise FileNotFoundError(f"Expected 322 window CSVs; found {len(csv_paths)} (missing or extra files)")
+    missing_configs = [config for config in EXPECTED
+                       if not any(path.startswith(config + "/") for path in csv_paths)]
+    if missing_configs:
+        raise FileNotFoundError(f"Missing FW/FS configuration folder(s): {missing_configs}")
+
+
+def _reuse_completed(output_root: Path, repo: Path) -> dict | None:
+    if not output_root.exists():
+        return None
+    stage = output_root.parent.with_name(output_root.parent.name + ".incomplete")
+    if stage.exists():
+        raise FileExistsError(f"Both completed and incomplete dataset trees exist: {stage}")
+    return {"action": "reused_verified", **validate_dataset(output_root, repo)}
+
+
+def _prepare_incremental(repo: Path, output_root: Path, entries: list[dict],
+                         source_kind: str, transfer, *, source_id: str) -> dict:
+    """One verified file at a time; an existing .incomplete tree is inspected, not deleted."""
+    reused = _reuse_completed(output_root, repo)
+    if reused is not None:
+        return reused
+    _inventory_precheck(entries)
+    parent = output_root.parent
+    stage = parent.with_name(parent.name + ".incomplete")
+    if parent.exists():
+        raise FileExistsError(f"Dataset target exists but is not validated: {parent}")
+    selected = [item for item in entries if item["relative_path"] == "window_run_summary.json"
+                or item["relative_path"].endswith("_windows.csv")]
+    plan = {"source_kind": source_kind, "source_id": source_id, "files": selected}
+    plan_bytes = json.dumps(plan, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    plan_hash = hashlib.sha256(plan_bytes).hexdigest()
+    plan_path = stage / "transfer_plan.json"
+    if stage.exists():
+        if not plan_path.is_file():
+            raise FileExistsError(f"Unrecognized .incomplete tree; inspect manually: {stage}")
+        previous = json.loads(plan_path.read_text(encoding="utf-8"))
+        if previous.get("plan_sha256") != plan_hash:
+            raise ValueError("Drive/source inventory changed since .incomplete transfer; inspect manually")
+    else:
+        stage.parent.mkdir(parents=True, exist_ok=True)
+        stage.mkdir()
+        plan_path.write_text(json.dumps({"plan_sha256": plan_hash, **plan}, indent=2), encoding="utf-8")
+    windows = stage / "WINDOWS_CPLUS"
+    windows.mkdir(exist_ok=True)
+    pending = []
+    for item in selected:
+        relative = Path(item["relative_path"])
+        if relative.is_absolute() or ".." in relative.parts:
+            raise ValueError(f"Unsafe dataset relative path: {relative}")
+        destination = windows / relative
+        partial = destination.with_name(destination.name + ".partial")
+        if partial.exists():
+            expected_hash = item.get("md5Checksum") or _md5(Path(source_id) / relative)
+            if partial.stat().st_size == item["size"] and _md5(partial) == expected_hash:
+                os.replace(partial, destination)  # Complete bytes survived interruption before rename.
+            else:
+                raise FileExistsError(f"Incomplete/invalid partial needs inspection; not overwritten: {partial}")
+        if destination.exists():
+            if destination.stat().st_size != item["size"]:
+                raise IOError(f"Completed staged file size changed: {destination}")
+            expected_hash = item.get("md5Checksum")
+            if expected_hash and _md5(destination) != expected_hash:
+                raise IOError(f"Completed staged file MD5 changed: {destination}")
+            if not expected_hash and _md5(destination) != _md5(Path(source_id) / relative):
+                raise IOError(f"Completed staged file differs from mounted source: {destination}")
+        else:
+            pending.append(item)
+    remaining = sum(item["size"] for item in pending)
+    free = shutil.disk_usage(stage.parent).free
+    required = remaining + _MIN_TRAINING_DISK_RESERVE
+    if free < required:
+        raise OSError(f"Local disk admission FAIL: need {required:,} bytes free, have {free:,}; "
+                      f"short by {required-free:,} bytes")
+    total = len(selected)
+    for index, item in enumerate(selected, 1):
+        destination = windows / item["relative_path"]
+        if destination.exists():
+            print(f"[dataset {index}/{total}] verified existing: {item['relative_path']}", flush=True)
+            continue
+        partial = destination.with_name(destination.name + ".partial")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        print(f"[dataset {index}/{total}] transfer {item['relative_path']} ({item['size']:,} bytes)", flush=True)
+        transfer(item, partial)
+        if partial.stat().st_size != item["size"]:
+            raise IOError(f"Downloaded/copied size mismatch: {partial}")
+        expected_hash = item.get("md5Checksum") or _md5(Path(source_id) / item["relative_path"])
+        if _md5(partial) != expected_hash:
+            raise IOError(f"Downloaded/copied MD5 mismatch: {partial}")
+        os.replace(partial, destination)
+    validated = validate_dataset(windows, repo)
+    os.replace(stage, parent)
+    return {"action": "prepared_verified", "source_kind": source_kind,
+            "disk_free_before_bytes": free, "disk_required_bytes": required,
+            "transferred_files": len(pending), **validated}
+
+
+def prepare_drive_folder_dataset(repo: Path, windows_folder_id: str, service,
+                                 *, output_root: Path = WINDOW_ROOT) -> dict:
+    """Use Drive API only for WINDOWS_CPLUS; never download CSV_SPLIT_CPLUS."""
+    from .drive_manager import download_drive_file, inventory_window_files
+    reused = _reuse_completed(output_root, repo)
+    if reused is not None:
+        return reused
+    entries = inventory_window_files(service, windows_folder_id)
+    return _prepare_incremental(repo, output_root, entries, "drive_folder",
+                                lambda item, path: download_drive_file(service, item, path),
+                                source_id=windows_folder_id)
+
+
+def prepare_mounted_folder_dataset(repo: Path, source: Path,
+                                   *, output_root: Path = WINDOW_ROOT) -> dict:
+    """Copy a mounted WINDOWS_CPLUS one verified file at a time, or reuse local output."""
+    reused = _reuse_completed(output_root, repo)
+    if reused is not None:
+        return reused
+    if source.name != "WINDOWS_CPLUS" or not source.is_dir():
+        raise ValueError("Mounted source must point directly to WINDOWS_CPLUS")
+    entries = []
+    for path in source.rglob("*"):
+        if path.is_symlink():
+            raise ValueError(f"Mounted dataset symlink is not accepted: {path}")
+        if path.is_file():
+            relative = path.relative_to(source).as_posix()
+            entries.append({"relative_path": relative, "size": path.stat().st_size,
+                            "mtime_ns": path.stat().st_mtime_ns})
+    entries.sort(key=lambda item: item["relative_path"])
+    return _prepare_incremental(repo, output_root, entries, "mounted_folder",
+                                lambda item, path: shutil.copyfile(source / item["relative_path"], path),
+                                source_id=str(source.resolve()))
+
+
 def prepare_dataset(repo: Path, *, archive: Path | None = None,
                     extracted_window_dir: Path | None = None,
                     output_root: Path = WINDOW_ROOT) -> dict:
     """Reuse valid local data or create an isolated .incomplete tree and promote."""
-    if output_root.exists():
-        return {"action": "reused_verified", **validate_dataset(output_root, repo)}
+    reused = _reuse_completed(output_root, repo)
+    if reused is not None:
+        return reused
     if (archive is None) == (extracted_window_dir is None):
         raise ValueError("Provide exactly one ZIP or existing extracted WINDOWS_CPLUS directory")
+    if extracted_window_dir is not None:
+        return prepare_mounted_folder_dataset(repo, extracted_window_dir, output_root=output_root)
     dataset_parent = output_root.parent
     incomplete = dataset_parent.with_name(dataset_parent.name + ".incomplete")
     if dataset_parent.exists() or incomplete.exists():
@@ -139,10 +305,6 @@ def prepare_dataset(repo: Path, *, archive: Path | None = None,
     if archive is not None:
         info = inspect_archive(archive)
         selected_bytes = info["selected_uncompressed_bytes"]
-    else:
-        if not (extracted_window_dir / "window_run_summary.json").is_file():
-            raise ValueError("Selected extracted folder is not WINDOWS_CPLUS")
-        selected_bytes = sum(p.stat().st_size for p in extracted_window_dir.rglob("*") if p.is_file())
     free = shutil.disk_usage(dataset_parent.parent).free
     required = selected_bytes + _MIN_TRAINING_DISK_RESERVE
     if free < required:
@@ -163,8 +325,6 @@ def prepare_dataset(repo: Path, *, archive: Path | None = None,
                     target.parent.mkdir(parents=True, exist_ok=True)
                     with handle.open(member) as source, target.open("xb") as dest:
                         shutil.copyfileobj(source, dest, 8 * 1024 * 1024)
-        else:
-            shutil.copytree(extracted_window_dir, windows)
         _copy_readonly_metadata(repo, incomplete / "CSV_SPLIT_CPLUS")
         validated = validate_dataset(windows, repo)
         os.replace(incomplete, dataset_parent)

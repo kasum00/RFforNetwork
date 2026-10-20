@@ -1,5 +1,7 @@
 # Stage 6 — Triển khai cục bộ notebook Google Colab Pro
 
+> Bản này ghi trạng thái triển khai ban đầu. Lỗi Cell 5/6 và hướng dẫn dataset folder đã được cập nhật trong `STAGE6_DATASET_FIX_REPORT.md`; ưu tiên báo cáo fix khi chạy lại notebook.
+
 Ngày 20/10/2026. **Trạng thái: ĐÃ TRIỂN KHAI VÀ KIỂM THỬ CỤC BỘ; CHƯA XÁC MINH COLAB/DRIVE; KHÔNG HUẤN LUYỆN CHÍNH THỨC.**
 
 ## 1. Căn cứ và repository

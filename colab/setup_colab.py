@@ -14,6 +14,16 @@ EXPECTED_VERSIONS = {
     "numpy": "1.26.4", "pandas": "2.3.3", "scipy": "1.15.3",
     "scikit-learn": "1.7.2", "joblib": "1.5.3",
 }
+PY313_VERSIONS = {**EXPECTED_VERSIONS, "numpy": "2.2.6"}
+
+
+def selected_versions(python_version: tuple[int, int] | None = None) -> dict[str, str]:
+    version = python_version or tuple(sys.version_info[:2])
+    if version in ((3, 10), (3, 11), (3, 12)):
+        return EXPECTED_VERSIONS.copy()
+    if version == (3, 13):
+        return PY313_VERSIONS.copy()
+    raise RuntimeError(f"Python {version[0]}.{version[1]} is not prepared; official training blocked")
 REQUIRED_REPO_FILES = (
     "huyen_code/ciciomt24_training.py",
     "huyen_code/ciciomt24_sliding_window.py",
@@ -57,6 +67,9 @@ def runtime_info(path: Path = Path("/content")) -> dict:
         "gpu": gpu, "versions": packages,
         "scientific_versions_match_stage5": all(
             packages[name] == version for name, version in EXPECTED_VERSIONS.items()),
+        "scientific_versions_match_selected_profile": all(
+            packages[name] == version for name, version in selected_versions().items()),
+        "selected_scientific_profile": selected_versions(),
         "gpu_accelerates_this_sklearn_pipeline": False,
     }
 
@@ -84,20 +97,20 @@ def clone_or_inspect(url: str, target: Path) -> dict:
 
 
 def assert_supported_python() -> None:
-    if sys.version_info[:2] not in ((3, 10), (3, 11), (3, 12)):
-        raise RuntimeError("Stage 5 dependency pins are prepared for Python 3.10–3.12 only. "
-                           "Do not downgrade Colab's system Python automatically.")
+    selected_versions()
 
 
 def dependency_plan() -> dict:
+    expected = selected_versions()
     current = {}
-    for name in EXPECTED_VERSIONS:
+    for name in expected:
         try:
             current[name] = metadata.version(name)
         except metadata.PackageNotFoundError:
             current[name] = None
-    return {"current": current, "expected": EXPECTED_VERSIONS,
-            "install_needed": any(current[n] != v for n, v in EXPECTED_VERSIONS.items())}
+    return {"current": current, "expected": expected,
+            "install_needed": any(current[n] != v for n, v in expected.items()),
+            "stage5_exact_versions": current == EXPECTED_VERSIONS}
 
 
 def save_environment(path: Path, info: dict) -> None:
