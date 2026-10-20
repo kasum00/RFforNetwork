@@ -1,0 +1,286 @@
+Source_CSV_ID,Source_CSV,Scenario,Capture_Group_ID,Split,Flow_Count,First_Timestamp,Last_Timestamp,Min_Original_Row_Index,Max_Original_Row_Index,Output_Relative_Path,Proxy_Label,Proxy_Label_Source
+0,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\ARP_Spoofing_test.pcap_Flow.csv,ARP_Spoofing,1,train,186,2023-09-07 02:11:10,2023-09-07 02:14:54,0,185,train\ARP_Spoofing\sid000__ARP_Spoofing_test.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+0,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\ARP_Spoofing_test.pcap_Flow.csv,ARP_Spoofing,1,val,0,,,,,,Attack,SCENARIO_PROXY
+0,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\ARP_Spoofing_test.pcap_Flow.csv,ARP_Spoofing,1,test,0,,,,,,Attack,SCENARIO_PROXY
+0,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\ARP_Spoofing_test.pcap_Flow.csv,ARP_Spoofing,1,embargo,0,,,,,,Attack,SCENARIO_PROXY
+1,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Benign_test.pcap_Flow.csv,Benign,2,train,0,,,,,,Benign,SCENARIO_PROXY
+1,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Benign_test.pcap_Flow.csv,Benign,2,val,0,,,,,,Benign,SCENARIO_PROXY
+1,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Benign_test.pcap_Flow.csv,Benign,2,test,6612,2023-09-14 19:24:14,2023-09-14 23:20:50,0,6611,test\Benign\sid001__Benign_test.pcap_Flow__test.csv,Benign,SCENARIO_PROXY
+1,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Benign_test.pcap_Flow.csv,Benign,2,embargo,0,,,,,,Benign,SCENARIO_PROXY
+2,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DDoS-Connect_Flood_test.pcap_Flow.csv,MQTT-DDoS-Connect_Flood,3,train,0,,,,,,Attack,SCENARIO_PROXY
+2,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DDoS-Connect_Flood_test.pcap_Flow.csv,MQTT-DDoS-Connect_Flood,3,val,0,,,,,,Attack,SCENARIO_PROXY
+2,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DDoS-Connect_Flood_test.pcap_Flow.csv,MQTT-DDoS-Connect_Flood,3,test,826423,2023-08-30 03:27:57,2023-08-30 03:30:00,9073,842843,test\MQTT-DDoS-Connect_Flood\sid002__MQTT-DDoS-Connect_Flood_test.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+2,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DDoS-Connect_Flood_test.pcap_Flow.csv,MQTT-DDoS-Connect_Flood,3,embargo,16421,2023-08-30 03:27:55,2023-08-30 03:27:56,0,842786,,Attack,SCENARIO_PROXY
+3,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DDoS-Publish_Flood_test.pcap_Flow.csv,MQTT-DDoS-Publish_Flood,4,train,0,,,,,,Attack,SCENARIO_PROXY
+3,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DDoS-Publish_Flood_test.pcap_Flow.csv,MQTT-DDoS-Publish_Flood,4,val,0,,,,,,Attack,SCENARIO_PROXY
+3,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DDoS-Publish_Flood_test.pcap_Flow.csv,MQTT-DDoS-Publish_Flood,4,test,2682,2023-08-30 03:05:46,2023-08-30 03:07:59,0,2681,test\MQTT-DDoS-Publish_Flood\sid003__MQTT-DDoS-Publish_Flood_test.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+3,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DDoS-Publish_Flood_test.pcap_Flow.csv,MQTT-DDoS-Publish_Flood,4,embargo,0,,,,,,Attack,SCENARIO_PROXY
+4,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DoS-Connect_Flood_test.pcap_Flow.csv,MQTT-DoS-Connect_Flood,5,train,0,,,,,,Attack,SCENARIO_PROXY
+4,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DoS-Connect_Flood_test.pcap_Flow.csv,MQTT-DoS-Connect_Flood,5,val,0,,,,,,Attack,SCENARIO_PROXY
+4,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DoS-Connect_Flood_test.pcap_Flow.csv,MQTT-DoS-Connect_Flood,5,test,28093,2023-08-29 01:32:58,2023-08-29 01:37:00,0,28092,test\MQTT-DoS-Connect_Flood\sid004__MQTT-DoS-Connect_Flood_test.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+4,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DoS-Connect_Flood_test.pcap_Flow.csv,MQTT-DoS-Connect_Flood,5,embargo,0,,,,,,Attack,SCENARIO_PROXY
+5,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DoS-Publish_Flood_test.pcap_Flow.csv,MQTT-DoS-Publish_Flood,6,train,227,2023-08-30 00:28:00,2023-08-30 00:30:00,0,226,train\MQTT-DoS-Publish_Flood\sid005__MQTT-DoS-Publish_Flood_test.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+5,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DoS-Publish_Flood_test.pcap_Flow.csv,MQTT-DoS-Publish_Flood,6,val,0,,,,,,Attack,SCENARIO_PROXY
+5,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DoS-Publish_Flood_test.pcap_Flow.csv,MQTT-DoS-Publish_Flood,6,test,0,,,,,,Attack,SCENARIO_PROXY
+5,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-DoS-Publish_Flood_test.pcap_Flow.csv,MQTT-DoS-Publish_Flood,6,embargo,0,,,,,,Attack,SCENARIO_PROXY
+6,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-Malformed_Data_test.pcap_Flow.csv,MQTT-Malformed_Data,7,train,908,2023-08-28 21:46:20,2023-08-28 21:49:56,0,907,train\MQTT-Malformed_Data\sid006__MQTT-Malformed_Data_test.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+6,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-Malformed_Data_test.pcap_Flow.csv,MQTT-Malformed_Data,7,val,0,,,,,,Attack,SCENARIO_PROXY
+6,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-Malformed_Data_test.pcap_Flow.csv,MQTT-Malformed_Data,7,test,0,,,,,,Attack,SCENARIO_PROXY
+6,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\MQTT-Malformed_Data_test.pcap_Flow.csv,MQTT-Malformed_Data,7,embargo,0,,,,,,Attack,SCENARIO_PROXY
+7,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-OS_Scan_test.pcap_Flow.csv,Recon-OS_Scan,8,train,0,,,,,,Attack,SCENARIO_PROXY
+7,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-OS_Scan_test.pcap_Flow.csv,Recon-OS_Scan,8,val,0,,,,,,Attack,SCENARIO_PROXY
+7,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-OS_Scan_test.pcap_Flow.csv,Recon-OS_Scan,8,test,14866,2023-09-07 23:34:22,2023-09-07 23:37:59,0,14865,test\Recon-OS_Scan\sid007__Recon-OS_Scan_test.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+7,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-OS_Scan_test.pcap_Flow.csv,Recon-OS_Scan,8,embargo,0,,,,,,Attack,SCENARIO_PROXY
+8,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-Ping_Sweep_test.pcap_Flow.csv,Recon-Ping_Sweep,9,train,43,2023-09-07 23:50:30,2023-09-07 23:50:58,0,42,train\Recon-Ping_Sweep\sid008__Recon-Ping_Sweep_test.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+8,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-Ping_Sweep_test.pcap_Flow.csv,Recon-Ping_Sweep,9,val,0,,,,,,Attack,SCENARIO_PROXY
+8,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-Ping_Sweep_test.pcap_Flow.csv,Recon-Ping_Sweep,9,test,0,,,,,,Attack,SCENARIO_PROXY
+8,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-Ping_Sweep_test.pcap_Flow.csv,Recon-Ping_Sweep,9,embargo,0,,,,,,Attack,SCENARIO_PROXY
+9,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-Port_Scan_test.pcap_Flow.csv,Recon-Port_Scan,10,train,0,,,,,,Attack,SCENARIO_PROXY
+9,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-Port_Scan_test.pcap_Flow.csv,Recon-Port_Scan,10,val,0,,,,,,Attack,SCENARIO_PROXY
+9,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-Port_Scan_test.pcap_Flow.csv,Recon-Port_Scan,10,test,90096,2023-09-07 23:03:33,2023-09-07 23:06:00,0,104747,test\Recon-Port_Scan\sid009__Recon-Port_Scan_test.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+9,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-Port_Scan_test.pcap_Flow.csv,Recon-Port_Scan,10,embargo,14652,2023-09-07 23:03:31,2023-09-07 23:03:32,5,104742,,Attack,SCENARIO_PROXY
+10,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-VulScan_test.pcap_Flow.csv,Recon-VulScan,11,train,0,,,,,,Attack,SCENARIO_PROXY
+10,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-VulScan_test.pcap_Flow.csv,Recon-VulScan,11,val,0,,,,,,Attack,SCENARIO_PROXY
+10,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-VulScan_test.pcap_Flow.csv,Recon-VulScan,11,test,1216,2023-09-12 22:35:16,2023-09-12 22:39:48,72,2334,test\Recon-VulScan\sid010__Recon-VulScan_test.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+10,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\Recon-VulScan_test.pcap_Flow.csv,Recon-VulScan,11,embargo,1119,2023-09-12 22:33:26,2023-09-12 22:35:00,0,2329,,Attack,SCENARIO_PROXY
+11,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-ICMP1_test.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,train,603,2023-09-07 00:00:33,2023-09-07 00:10:46,0,602,train\TCP_IP-DDoS-ICMP\sid011__TCP_IP-DDoS-ICMP1_test.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+11,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-ICMP1_test.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,val,0,,,,,,Attack,SCENARIO_PROXY
+11,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-ICMP1_test.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,test,0,,,,,,Attack,SCENARIO_PROXY
+11,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-ICMP1_test.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,embargo,0,,,,,,Attack,SCENARIO_PROXY
+12,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-ICMP2_test.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,train,313,2023-09-06 02:49:38,2023-09-07 00:00:27,0,312,train\TCP_IP-DDoS-ICMP\sid012__TCP_IP-DDoS-ICMP2_test.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+12,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-ICMP2_test.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,val,0,,,,,,Attack,SCENARIO_PROXY
+12,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-ICMP2_test.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,test,0,,,,,,Attack,SCENARIO_PROXY
+12,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-ICMP2_test.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,embargo,0,,,,,,Attack,SCENARIO_PROXY
+13,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-SYN_test.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,train,0,,,,,,Attack,SCENARIO_PROXY
+13,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-SYN_test.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,val,0,,,,,,Attack,SCENARIO_PROXY
+13,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-SYN_test.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,test,924169,2023-09-05 22:43:29,2023-09-05 23:15:49,0,924168,test\TCP_IP-DDoS-SYN\sid013__TCP_IP-DDoS-SYN_test.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+13,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-SYN_test.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,embargo,0,,,,,,Attack,SCENARIO_PROXY
+14,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-TCP_test.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,train,0,,,,,,Attack,SCENARIO_PROXY
+14,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-TCP_test.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,val,0,,,,,,Attack,SCENARIO_PROXY
+14,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-TCP_test.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,test,732869,2023-09-05 21:02:56,2023-09-05 21:19:45,0,787083,test\TCP_IP-DDoS-TCP\sid014__TCP_IP-DDoS-TCP_test.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+14,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-TCP_test.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,embargo,54215,2023-09-05 21:02:54,2023-09-05 21:02:55,6,93050,,Attack,SCENARIO_PROXY
+15,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-UDP1_test.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,train,0,,,,,,Attack,SCENARIO_PROXY
+15,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-UDP1_test.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,val,0,,,,,,Attack,SCENARIO_PROXY
+15,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-UDP1_test.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,test,21324,2023-09-06 01:09:09,2023-09-06 01:18:43,0,21323,test\TCP_IP-DDoS-UDP\sid015__TCP_IP-DDoS-UDP1_test.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+15,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-UDP1_test.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,embargo,0,,,,,,Attack,SCENARIO_PROXY
+16,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-UDP2_test.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,train,0,,,,,,Attack,SCENARIO_PROXY
+16,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-UDP2_test.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,val,0,,,,,,Attack,SCENARIO_PROXY
+16,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-UDP2_test.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,test,16029,2023-09-06 01:18:43,2023-09-06 01:25:56,0,16028,test\TCP_IP-DDoS-UDP\sid016__TCP_IP-DDoS-UDP2_test.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+16,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DDoS-UDP2_test.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,embargo,0,,,,,,Attack,SCENARIO_PROXY
+17,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-ICMP_test.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,train,705,2023-09-02 00:57:01,2023-09-02 01:41:52,0,704,train\TCP_IP-DoS-ICMP\sid017__TCP_IP-DoS-ICMP_test.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+17,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-ICMP_test.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,val,0,,,,,,Attack,SCENARIO_PROXY
+17,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-ICMP_test.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,test,0,,,,,,Attack,SCENARIO_PROXY
+17,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-ICMP_test.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,embargo,0,,,,,,Attack,SCENARIO_PROXY
+18,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-SYN_test.pcap_Flow.csv,TCP_IP-DoS-SYN,17,train,0,,,,,,Attack,SCENARIO_PROXY
+18,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-SYN_test.pcap_Flow.csv,TCP_IP-DoS-SYN,17,val,0,,,,,,Attack,SCENARIO_PROXY
+18,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-SYN_test.pcap_Flow.csv,TCP_IP-DoS-SYN,17,test,262436,2023-08-31 22:11:38,2023-08-31 22:18:59,0,262435,test\TCP_IP-DoS-SYN\sid018__TCP_IP-DoS-SYN_test.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+18,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-SYN_test.pcap_Flow.csv,TCP_IP-DoS-SYN,17,embargo,0,,,,,,Attack,SCENARIO_PROXY
+19,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-TCP_test.pcap_Flow.csv,TCP_IP-DoS-TCP,18,train,0,,,,,,Attack,SCENARIO_PROXY
+19,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-TCP_test.pcap_Flow.csv,TCP_IP-DoS-TCP,18,val,0,,,,,,Attack,SCENARIO_PROXY
+19,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-TCP_test.pcap_Flow.csv,TCP_IP-DoS-TCP,18,test,327957,2023-08-31 01:19:38,2023-08-31 01:27:55,0,327956,test\TCP_IP-DoS-TCP\sid019__TCP_IP-DoS-TCP_test.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+19,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-TCP_test.pcap_Flow.csv,TCP_IP-DoS-TCP,18,embargo,0,,,,,,Attack,SCENARIO_PROXY
+20,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-UDP_test.pcap_Flow.csv,TCP_IP-DoS-UDP,19,train,0,,,,,,Attack,SCENARIO_PROXY
+20,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-UDP_test.pcap_Flow.csv,TCP_IP-DoS-UDP,19,val,0,,,,,,Attack,SCENARIO_PROXY
+20,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-UDP_test.pcap_Flow.csv,TCP_IP-DoS-UDP,19,test,14585,2023-09-01 21:15:45,2023-09-01 22:53:56,0,14584,test\TCP_IP-DoS-UDP\sid020__TCP_IP-DoS-UDP_test.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+20,D:\COMPACT-MI-RFE\CICIoMT24\CSV\test\TCP_IP-DoS-UDP_test.pcap_Flow.csv,TCP_IP-DoS-UDP,19,embargo,0,,,,,,Attack,SCENARIO_PROXY
+21,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\ARP_Spoofing_train.pcap_Flow.csv,ARP_Spoofing,1,train,1431,2023-09-07 00:28:00,2023-09-07 02:11:04,0,1430,train\ARP_Spoofing\sid021__ARP_Spoofing_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+21,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\ARP_Spoofing_train.pcap_Flow.csv,ARP_Spoofing,1,val,0,,,,,,Attack,SCENARIO_PROXY
+21,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\ARP_Spoofing_train.pcap_Flow.csv,ARP_Spoofing,1,test,0,,,,,,Attack,SCENARIO_PROXY
+21,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\ARP_Spoofing_train.pcap_Flow.csv,ARP_Spoofing,1,embargo,0,,,,,,Attack,SCENARIO_PROXY
+22,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Benign_train.pcap_Flow.csv,Benign,2,train,25707,2023-09-13 21:21:00,2023-09-14 11:54:58,0,37228,train\Benign\sid022__Benign_train.pcap_Flow__train.csv,Benign,SCENARIO_PROXY
+22,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Benign_train.pcap_Flow.csv,Benign,2,val,8587,2023-09-14 12:15:27,2023-09-14 17:52:56,21605,37229,val\Benign\sid022__Benign_train.pcap_Flow__val.csv,Benign,SCENARIO_PROXY
+22,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Benign_train.pcap_Flow.csv,Benign,2,test,1914,2023-09-14 18:13:37,2023-09-14 19:24:12,29670,37219,test\Benign\sid022__Benign_train.pcap_Flow__test.csv,Benign,SCENARIO_PROXY
+22,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Benign_train.pcap_Flow.csv,Benign,2,embargo,1022,2023-09-14 11:54:59,2023-09-14 18:13:36,21183,37198,,Benign,SCENARIO_PROXY
+23,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DDoS-Connect_Flood_train.pcap_Flow.csv,MQTT-DDoS-Connect_Flood,3,train,1750338,2023-08-30 03:19:00,2023-08-30 03:23:40,0,3324322,train\MQTT-DDoS-Connect_Flood\sid023__MQTT-DDoS-Connect_Flood_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+23,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DDoS-Connect_Flood_train.pcap_Flow.csv,MQTT-DDoS-Connect_Flood,3,val,812976,2023-08-30 03:25:44,2023-08-30 03:27:54,2453085,3324525,val\MQTT-DDoS-Connect_Flood\sid023__MQTT-DDoS-Connect_Flood_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+23,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DDoS-Connect_Flood_train.pcap_Flow.csv,MQTT-DDoS-Connect_Flood,3,test,0,,,,,,Attack,SCENARIO_PROXY
+23,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DDoS-Connect_Flood_train.pcap_Flow.csv,MQTT-DDoS-Connect_Flood,3,embargo,761212,2023-08-30 03:23:41,2023-08-30 03:27:55,1696633,3324512,,Attack,SCENARIO_PROXY
+24,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DDoS-Publish_Flood_train.pcap_Flow.csv,MQTT-DDoS-Publish_Flood,4,train,39839,2023-08-30 02:57:00,2023-08-30 03:00:59,0,91564,train\MQTT-DDoS-Publish_Flood\sid024__MQTT-DDoS-Publish_Flood_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+24,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DDoS-Publish_Flood_train.pcap_Flow.csv,MQTT-DDoS-Publish_Flood,4,val,4002,2023-08-30 03:02:39,2023-08-30 03:02:59,29939,91559,val\MQTT-DDoS-Publish_Flood\sid024__MQTT-DDoS-Publish_Flood_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+24,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DDoS-Publish_Flood_train.pcap_Flow.csv,MQTT-DDoS-Publish_Flood,4,test,15957,2023-08-30 03:04:24,2023-08-30 03:05:46,39153,91566,test\MQTT-DDoS-Publish_Flood\sid024__MQTT-DDoS-Publish_Flood_train.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+24,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DDoS-Publish_Flood_train.pcap_Flow.csv,MQTT-DDoS-Publish_Flood,4,embargo,31770,2023-08-30 03:01:00,2023-08-30 03:04:23,21242,91567,,Attack,SCENARIO_PROXY
+25,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DoS-Connect_Flood_train.pcap_Flow.csv,MQTT-DoS-Connect_Flood,5,train,69542,2023-08-29 01:26:00,2023-08-29 01:27:29,0,115053,train\MQTT-DoS-Connect_Flood\sid025__MQTT-DoS-Connect_Flood_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+25,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DoS-Connect_Flood_train.pcap_Flow.csv,MQTT-DoS-Connect_Flood,5,val,8812,2023-08-29 01:29:30,2023-08-29 01:30:53,73869,115058,val\MQTT-DoS-Connect_Flood\sid025__MQTT-DoS-Connect_Flood_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+25,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DoS-Connect_Flood_train.pcap_Flow.csv,MQTT-DoS-Connect_Flood,5,test,378,2023-08-29 01:32:54,2023-08-29 01:32:58,103358,115059,test\MQTT-DoS-Connect_Flood\sid025__MQTT-DoS-Connect_Flood_train.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+25,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DoS-Connect_Flood_train.pcap_Flow.csv,MQTT-DoS-Connect_Flood,5,embargo,36328,2023-08-29 01:27:30,2023-08-29 01:32:53,57623,115057,,Attack,SCENARIO_PROXY
+26,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DoS-Publish_Flood_train.pcap_Flow.csv,MQTT-DoS-Publish_Flood,6,train,825,2023-08-30 00:19:00,2023-08-30 00:27:59,0,824,train\MQTT-DoS-Publish_Flood\sid026__MQTT-DoS-Publish_Flood_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+26,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DoS-Publish_Flood_train.pcap_Flow.csv,MQTT-DoS-Publish_Flood,6,val,0,,,,,,Attack,SCENARIO_PROXY
+26,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DoS-Publish_Flood_train.pcap_Flow.csv,MQTT-DoS-Publish_Flood,6,test,0,,,,,,Attack,SCENARIO_PROXY
+26,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-DoS-Publish_Flood_train.pcap_Flow.csv,MQTT-DoS-Publish_Flood,6,embargo,0,,,,,,Attack,SCENARIO_PROXY
+27,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-Malformed_Data_train.pcap_Flow.csv,MQTT-Malformed_Data,7,train,1569,2023-08-28 21:39:00,2023-08-28 21:46:19,0,1568,train\MQTT-Malformed_Data\sid027__MQTT-Malformed_Data_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+27,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-Malformed_Data_train.pcap_Flow.csv,MQTT-Malformed_Data,7,val,0,,,,,,Attack,SCENARIO_PROXY
+27,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-Malformed_Data_train.pcap_Flow.csv,MQTT-Malformed_Data,7,test,0,,,,,,Attack,SCENARIO_PROXY
+27,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\MQTT-Malformed_Data_train.pcap_Flow.csv,MQTT-Malformed_Data,7,embargo,0,,,,,,Attack,SCENARIO_PROXY
+28,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-OS_Scan_train.pcap_Flow.csv,Recon-OS_Scan,8,train,35526,2023-09-07 23:20:00,2023-09-07 23:29:59,0,70456,train\Recon-OS_Scan\sid028__Recon-OS_Scan_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+28,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-OS_Scan_train.pcap_Flow.csv,Recon-OS_Scan,8,val,2016,2023-09-07 23:31:53,2023-09-07 23:31:57,409,70434,val\Recon-OS_Scan\sid028__Recon-OS_Scan_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+28,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-OS_Scan_train.pcap_Flow.csv,Recon-OS_Scan,8,test,2304,2023-09-07 23:33:57,2023-09-07 23:34:22,535,70454,test\Recon-OS_Scan\sid028__Recon-OS_Scan_train.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+28,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-OS_Scan_train.pcap_Flow.csv,Recon-OS_Scan,8,embargo,30612,2023-09-07 23:30:00,2023-09-07 23:33:56,350,70457,,Attack,SCENARIO_PROXY
+29,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-Ping_Sweep_train.pcap_Flow.csv,Recon-Ping_Sweep,9,train,71,2023-09-07 23:49:00,2023-09-07 23:50:29,0,70,train\Recon-Ping_Sweep\sid029__Recon-Ping_Sweep_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+29,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-Ping_Sweep_train.pcap_Flow.csv,Recon-Ping_Sweep,9,val,0,,,,,,Attack,SCENARIO_PROXY
+29,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-Ping_Sweep_train.pcap_Flow.csv,Recon-Ping_Sweep,9,test,0,,,,,,Attack,SCENARIO_PROXY
+29,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-Ping_Sweep_train.pcap_Flow.csv,Recon-Ping_Sweep,9,embargo,0,,,,,,Attack,SCENARIO_PROXY
+30,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-Port_Scan_train.pcap_Flow.csv,Recon-Port_Scan,10,train,212683,2023-09-07 22:20:00,2023-09-07 23:01:59,0,381052,train\Recon-Port_Scan\sid030__Recon-Port_Scan_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+30,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-Port_Scan_train.pcap_Flow.csv,Recon-Port_Scan,10,val,92503,2023-09-07 23:03:05,2023-09-07 23:03:30,486,381048,val\Recon-Port_Scan\sid030__Recon-Port_Scan_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+30,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-Port_Scan_train.pcap_Flow.csv,Recon-Port_Scan,10,test,0,,,,,,Attack,SCENARIO_PROXY
+30,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-Port_Scan_train.pcap_Flow.csv,Recon-Port_Scan,10,embargo,75867,2023-09-07 23:02:00,2023-09-07 23:03:03,445,381043,,Attack,SCENARIO_PROXY
+31,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-VulScan_train.pcap_Flow.csv,Recon-VulScan,11,train,2095,2023-09-12 22:28:06,2023-09-12 22:30:21,0,6242,train\Recon-VulScan\sid031__Recon-VulScan_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+31,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-VulScan_train.pcap_Flow.csv,Recon-VulScan,11,val,1277,2023-09-12 22:32:11,2023-09-12 22:33:16,69,6230,val\Recon-VulScan\sid031__Recon-VulScan_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+31,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-VulScan_train.pcap_Flow.csv,Recon-VulScan,11,test,0,,,,,,Attack,SCENARIO_PROXY
+31,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\Recon-VulScan_train.pcap_Flow.csv,Recon-VulScan,11,embargo,2871,2023-09-12 22:30:26,2023-09-12 22:33:25,33,6240,,Attack,SCENARIO_PROXY
+32,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP1_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,train,342,2023-09-06 01:36:26,2023-09-06 01:46:46,0,341,train\TCP_IP-DDoS-ICMP\sid032__TCP_IP-DDoS-ICMP1_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+32,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP1_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,val,0,,,,,,Attack,SCENARIO_PROXY
+32,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP1_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,test,0,,,,,,Attack,SCENARIO_PROXY
+32,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP1_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,embargo,0,,,,,,Attack,SCENARIO_PROXY
+33,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP2_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,train,238,2023-09-06 01:47:00,2023-09-06 01:51:40,0,237,train\TCP_IP-DDoS-ICMP\sid033__TCP_IP-DDoS-ICMP2_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+33,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP2_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,val,0,,,,,,Attack,SCENARIO_PROXY
+33,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP2_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,test,0,,,,,,Attack,SCENARIO_PROXY
+33,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP2_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,embargo,0,,,,,,Attack,SCENARIO_PROXY
+34,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP3_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,train,289,2023-09-06 01:51:42,2023-09-06 02:00:58,0,288,train\TCP_IP-DDoS-ICMP\sid034__TCP_IP-DDoS-ICMP3_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+34,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP3_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,val,0,,,,,,Attack,SCENARIO_PROXY
+34,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP3_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,test,0,,,,,,Attack,SCENARIO_PROXY
+34,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP3_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,embargo,0,,,,,,Attack,SCENARIO_PROXY
+35,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP4_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,train,285,2023-09-06 02:01:01,2023-09-06 02:09:42,0,284,train\TCP_IP-DDoS-ICMP\sid035__TCP_IP-DDoS-ICMP4_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+35,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP4_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,val,0,,,,,,Attack,SCENARIO_PROXY
+35,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP4_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,test,0,,,,,,Attack,SCENARIO_PROXY
+35,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP4_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,embargo,0,,,,,,Attack,SCENARIO_PROXY
+36,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP5_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,train,257,2023-09-06 02:09:56,2023-09-06 02:16:23,0,256,train\TCP_IP-DDoS-ICMP\sid036__TCP_IP-DDoS-ICMP5_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+36,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP5_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,val,0,,,,,,Attack,SCENARIO_PROXY
+36,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP5_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,test,0,,,,,,Attack,SCENARIO_PROXY
+36,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP5_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,embargo,0,,,,,,Attack,SCENARIO_PROXY
+37,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP6_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,train,330,2023-09-06 02:16:24,2023-09-06 02:27:18,0,329,train\TCP_IP-DDoS-ICMP\sid037__TCP_IP-DDoS-ICMP6_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+37,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP6_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,val,0,,,,,,Attack,SCENARIO_PROXY
+37,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP6_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,test,0,,,,,,Attack,SCENARIO_PROXY
+37,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP6_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,embargo,0,,,,,,Attack,SCENARIO_PROXY
+38,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP7_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,train,832,2023-09-06 02:27:19,2023-09-06 02:49:33,0,831,train\TCP_IP-DDoS-ICMP\sid038__TCP_IP-DDoS-ICMP7_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+38,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP7_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,val,0,,,,,,Attack,SCENARIO_PROXY
+38,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP7_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,test,0,,,,,,Attack,SCENARIO_PROXY
+38,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP7_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,embargo,0,,,,,,Attack,SCENARIO_PROXY
+39,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP8_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,train,363,2023-09-06 01:28:00,2023-09-06 01:36:20,0,362,train\TCP_IP-DDoS-ICMP\sid039__TCP_IP-DDoS-ICMP8_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+39,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP8_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,val,0,,,,,,Attack,SCENARIO_PROXY
+39,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP8_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,test,0,,,,,,Attack,SCENARIO_PROXY
+39,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-ICMP8_train.pcap_Flow.csv,TCP_IP-DDoS-ICMP,12,embargo,0,,,,,,Attack,SCENARIO_PROXY
+40,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN1_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,train,918016,2023-09-05 21:58:05,2023-09-05 22:10:22,0,918015,train\TCP_IP-DDoS-SYN\sid040__TCP_IP-DDoS-SYN1_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+40,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN1_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,val,0,,,,,,Attack,SCENARIO_PROXY
+40,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN1_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,test,0,,,,,,Attack,SCENARIO_PROXY
+40,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN1_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,embargo,0,,,,,,Attack,SCENARIO_PROXY
+41,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN2_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,train,338003,2023-09-05 22:10:23,2023-09-05 22:12:30,0,836016,train\TCP_IP-DDoS-SYN\sid041__TCP_IP-DDoS-SYN2_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+41,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN2_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,val,372119,2023-09-05 22:14:32,2023-09-05 22:37:03,393308,852459,val\TCP_IP-DDoS-SYN\sid041__TCP_IP-DDoS-SYN2_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+41,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN2_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,test,0,,,,,,Attack,SCENARIO_PROXY
+41,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN2_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,embargo,142338,2023-09-05 22:12:31,2023-09-05 22:14:31,196666,852458,,Attack,SCENARIO_PROXY
+42,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN3_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,train,0,,,,,,Attack,SCENARIO_PROXY
+42,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN3_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,val,439771,2023-09-05 22:37:04,2023-09-05 22:39:25,0,760062,val\TCP_IP-DDoS-SYN\sid042__TCP_IP-DDoS-SYN3_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+42,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN3_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,test,124407,2023-09-05 22:41:29,2023-09-05 22:43:29,393375,760075,test\TCP_IP-DDoS-SYN\sid042__TCP_IP-DDoS-SYN3_train.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+42,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN3_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,embargo,195898,2023-09-05 22:39:26,2023-09-05 22:41:28,196684,760074,,Attack,SCENARIO_PROXY
+43,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN4_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,train,1704559,2023-09-05 21:38:00,2023-09-05 21:57:54,0,1704558,train\TCP_IP-DDoS-SYN\sid043__TCP_IP-DDoS-SYN4_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+43,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN4_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,val,0,,,,,,Attack,SCENARIO_PROXY
+43,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN4_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,test,0,,,,,,Attack,SCENARIO_PROXY
+43,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-SYN4_train.pcap_Flow.csv,TCP_IP-DDoS-SYN,13,embargo,0,,,,,,Attack,SCENARIO_PROXY
+44,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP1_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,train,786737,2023-09-05 20:19:22,2023-09-05 20:25:22,0,786736,train\TCP_IP-DDoS-TCP\sid044__TCP_IP-DDoS-TCP1_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+44,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP1_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,val,0,,,,,,Attack,SCENARIO_PROXY
+44,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP1_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,test,0,,,,,,Attack,SCENARIO_PROXY
+44,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP1_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,embargo,0,,,,,,Attack,SCENARIO_PROXY
+45,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP2_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,train,852334,2023-09-05 20:25:22,2023-09-05 20:34:08,0,1267435,train\TCP_IP-DDoS-TCP\sid045__TCP_IP-DDoS-TCP2_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+45,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP2_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,val,322599,2023-09-05 20:35:34,2023-09-05 20:53:05,420352,1267432,val\TCP_IP-DDoS-TCP\sid045__TCP_IP-DDoS-TCP2_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+45,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP2_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,test,0,,,,,,Attack,SCENARIO_PROXY
+45,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP2_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,embargo,92503,2023-09-05 20:34:09,2023-09-05 20:35:32,327881,1259738,,Attack,SCENARIO_PROXY
+46,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP3_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,train,0,,,,,,Attack,SCENARIO_PROXY
+46,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP3_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,val,841291,2023-09-05 20:53:05,2023-09-05 21:02:36,0,1048885,val\TCP_IP-DDoS-TCP\sid046__TCP_IP-DDoS-TCP3_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+46,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP3_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,test,0,,,,,,Attack,SCENARIO_PROXY
+46,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP3_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,embargo,207598,2023-09-05 21:02:37,2023-09-05 21:02:54,786637,1048888,,Attack,SCENARIO_PROXY
+47,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP4_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,train,1652867,2023-09-05 20:05:00,2023-09-05 20:19:17,0,1652866,train\TCP_IP-DDoS-TCP\sid047__TCP_IP-DDoS-TCP4_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+47,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP4_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,val,0,,,,,,Attack,SCENARIO_PROXY
+47,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP4_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,test,0,,,,,,Attack,SCENARIO_PROXY
+47,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-TCP4_train.pcap_Flow.csv,TCP_IP-DDoS-TCP,14,embargo,0,,,,,,Attack,SCENARIO_PROXY
+48,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP1_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,train,23259,2023-09-05 23:35:00,2023-09-05 23:40:53,0,23258,train\TCP_IP-DDoS-UDP\sid048__TCP_IP-DDoS-UDP1_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+48,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP1_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,val,0,,,,,,Attack,SCENARIO_PROXY
+48,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP1_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,test,0,,,,,,Attack,SCENARIO_PROXY
+48,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP1_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,embargo,0,,,,,,Attack,SCENARIO_PROXY
+49,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP2_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,train,21087,2023-09-05 23:40:53,2023-09-05 23:48:38,0,21086,train\TCP_IP-DDoS-UDP\sid049__TCP_IP-DDoS-UDP2_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+49,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP2_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,val,0,,,,,,Attack,SCENARIO_PROXY
+49,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP2_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,test,0,,,,,,Attack,SCENARIO_PROXY
+49,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP2_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,embargo,0,,,,,,Attack,SCENARIO_PROXY
+50,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP3_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,train,31147,2023-09-05 23:48:38,2023-09-05 23:54:17,0,31146,train\TCP_IP-DDoS-UDP\sid050__TCP_IP-DDoS-UDP3_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+50,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP3_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,val,0,,,,,,Attack,SCENARIO_PROXY
+50,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP3_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,test,0,,,,,,Attack,SCENARIO_PROXY
+50,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP3_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,embargo,0,,,,,,Attack,SCENARIO_PROXY
+51,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP4_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,train,30623,2023-09-05 23:54:17,2023-09-06 00:03:26,0,30622,train\TCP_IP-DDoS-UDP\sid051__TCP_IP-DDoS-UDP4_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+51,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP4_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,val,0,,,,,,Attack,SCENARIO_PROXY
+51,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP4_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,test,0,,,,,,Attack,SCENARIO_PROXY
+51,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP4_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,embargo,0,,,,,,Attack,SCENARIO_PROXY
+52,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP5_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,train,22698,2023-09-06 00:03:26,2023-09-06 00:26:54,0,22697,train\TCP_IP-DDoS-UDP\sid052__TCP_IP-DDoS-UDP5_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+52,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP5_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,val,0,,,,,,Attack,SCENARIO_PROXY
+52,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP5_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,test,0,,,,,,Attack,SCENARIO_PROXY
+52,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP5_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,embargo,0,,,,,,Attack,SCENARIO_PROXY
+53,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP6_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,train,1756,2023-09-06 00:26:54,2023-09-06 00:27:23,0,20331,train\TCP_IP-DDoS-UDP\sid053__TCP_IP-DDoS-UDP6_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+53,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP6_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,val,12320,2023-09-06 00:29:14,2023-09-06 00:32:50,60,20348,val\TCP_IP-DDoS-UDP\sid053__TCP_IP-DDoS-UDP6_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+53,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP6_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,test,0,,,,,,Attack,SCENARIO_PROXY
+53,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP6_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,embargo,6273,2023-09-06 00:27:24,2023-09-06 00:29:13,2,20344,,Attack,SCENARIO_PROXY
+54,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP7_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,train,0,,,,,,Attack,SCENARIO_PROXY
+54,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP7_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,val,20665,2023-09-06 00:32:50,2023-09-06 01:03:43,0,20664,val\TCP_IP-DDoS-UDP\sid054__TCP_IP-DDoS-UDP7_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+54,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP7_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,test,0,,,,,,Attack,SCENARIO_PROXY
+54,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP7_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,embargo,0,,,,,,Attack,SCENARIO_PROXY
+55,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP8_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,train,0,,,,,,Attack,SCENARIO_PROXY
+55,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP8_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,val,6053,2023-09-06 01:03:43,2023-09-06 01:05:24,0,20645,val\TCP_IP-DDoS-UDP\sid055__TCP_IP-DDoS-UDP8_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+55,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP8_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,test,7577,2023-09-06 01:07:14,2023-09-06 01:09:09,66,20646,test\TCP_IP-DDoS-UDP\sid055__TCP_IP-DDoS-UDP8_train.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+55,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DDoS-UDP8_train.pcap_Flow.csv,TCP_IP-DDoS-UDP,15,embargo,7020,2023-09-06 01:05:25,2023-09-06 01:07:13,3,20649,,Attack,SCENARIO_PROXY
+56,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP1_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,train,297,2023-09-01 23:35:13,2023-09-01 23:41:42,0,296,train\TCP_IP-DoS-ICMP\sid056__TCP_IP-DoS-ICMP1_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+56,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP1_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,val,0,,,,,,Attack,SCENARIO_PROXY
+56,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP1_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,test,0,,,,,,Attack,SCENARIO_PROXY
+56,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP1_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,embargo,0,,,,,,Attack,SCENARIO_PROXY
+57,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP2_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,train,1216,2023-09-01 23:41:49,2023-09-02 00:49:00,0,1215,train\TCP_IP-DoS-ICMP\sid057__TCP_IP-DoS-ICMP2_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+57,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP2_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,val,0,,,,,,Attack,SCENARIO_PROXY
+57,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP2_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,test,0,,,,,,Attack,SCENARIO_PROXY
+57,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP2_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,embargo,0,,,,,,Attack,SCENARIO_PROXY
+58,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP3_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,train,325,2023-09-02 00:49:01,2023-09-02 00:56:57,0,324,train\TCP_IP-DoS-ICMP\sid058__TCP_IP-DoS-ICMP3_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+58,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP3_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,val,0,,,,,,Attack,SCENARIO_PROXY
+58,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP3_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,test,0,,,,,,Attack,SCENARIO_PROXY
+58,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP3_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,embargo,0,,,,,,Attack,SCENARIO_PROXY
+59,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP4_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,train,475,2023-09-01 23:17:00,2023-09-01 23:35:12,0,474,train\TCP_IP-DoS-ICMP\sid059__TCP_IP-DoS-ICMP4_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+59,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP4_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,val,0,,,,,,Attack,SCENARIO_PROXY
+59,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP4_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,test,0,,,,,,Attack,SCENARIO_PROXY
+59,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-ICMP4_train.pcap_Flow.csv,TCP_IP-DoS-ICMP,16,embargo,0,,,,,,Attack,SCENARIO_PROXY
+60,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN1_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,train,262439,2023-08-31 21:28:27,2023-08-31 21:36:05,0,262438,train\TCP_IP-DoS-SYN\sid060__TCP_IP-DoS-SYN1_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+60,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN1_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,val,0,,,,,,Attack,SCENARIO_PROXY
+60,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN1_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,test,0,,,,,,Attack,SCENARIO_PROXY
+60,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN1_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,embargo,0,,,,,,Attack,SCENARIO_PROXY
+61,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN2_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,train,262034,2023-08-31 21:36:12,2023-08-31 21:44:21,0,393676,train\TCP_IP-DoS-SYN\sid061__TCP_IP-DoS-SYN2_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+61,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN2_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,val,116022,2023-08-31 21:46:21,2023-08-31 21:48:54,196813,393677,val\TCP_IP-DoS-SYN\sid061__TCP_IP-DoS-SYN2_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+61,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN2_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,test,0,,,,,,Attack,SCENARIO_PROXY
+61,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN2_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,embargo,15622,2023-08-31 21:44:22,2023-08-31 21:46:20,131227,353472,,Attack,SCENARIO_PROXY
+62,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN3_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,train,0,,,,,,Attack,SCENARIO_PROXY
+62,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN3_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,val,262543,2023-08-31 21:48:59,2023-08-31 22:00:01,0,505066,val\TCP_IP-DoS-SYN\sid062__TCP_IP-DoS-SYN3_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+62,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN3_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,test,176910,2023-08-31 22:02:07,2023-08-31 22:11:11,219369,505061,test\TCP_IP-DoS-SYN\sid062__TCP_IP-DoS-SYN3_train.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+62,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN3_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,embargo,65614,2023-08-31 22:00:06,2023-08-31 22:02:01,196853,505055,,Attack,SCENARIO_PROXY
+63,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN4_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,train,779504,2023-08-31 20:58:00,2023-08-31 21:28:24,0,779503,train\TCP_IP-DoS-SYN\sid063__TCP_IP-DoS-SYN4_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+63,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN4_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,val,0,,,,,,Attack,SCENARIO_PROXY
+63,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN4_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,test,0,,,,,,Attack,SCENARIO_PROXY
+63,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-SYN4_train.pcap_Flow.csv,TCP_IP-DoS-SYN,17,embargo,0,,,,,,Attack,SCENARIO_PROXY
+64,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-TCP1_train.pcap_Flow.csv,TCP_IP-DoS-TCP,18,train,592184,2023-08-30 23:08:00,2023-08-31 00:05:10,0,592183,train\TCP_IP-DoS-TCP\sid064__TCP_IP-DoS-TCP1_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+64,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-TCP1_train.pcap_Flow.csv,TCP_IP-DoS-TCP,18,val,0,,,,,,Attack,SCENARIO_PROXY
+64,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-TCP1_train.pcap_Flow.csv,TCP_IP-DoS-TCP,18,test,0,,,,,,Attack,SCENARIO_PROXY
+64,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-TCP1_train.pcap_Flow.csv,TCP_IP-DoS-TCP,18,embargo,0,,,,,,Attack,SCENARIO_PROXY
+65,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-TCP2_train.pcap_Flow.csv,TCP_IP-DoS-TCP,18,train,325999,2023-08-31 00:05:11,2023-08-31 00:43:49,0,391571,train\TCP_IP-DoS-TCP\sid065__TCP_IP-DoS-TCP2_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+65,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-TCP2_train.pcap_Flow.csv,TCP_IP-DoS-TCP,18,val,7,2023-08-31 00:49:14,2023-08-31 00:49:20,213846,373503,val\TCP_IP-DoS-TCP\sid065__TCP_IP-DoS-TCP2_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+65,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-TCP2_train.pcap_Flow.csv,TCP_IP-DoS-TCP,18,test,0,,,,,,Attack,SCENARIO_PROXY
+65,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-TCP2_train.pcap_Flow.csv,TCP_IP-DoS-TCP,18,embargo,65567,2023-08-31 00:49:00,2023-08-31 00:49:10,196576,391572,,Attack,SCENARIO_PROXY
+66,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-TCP3_train.pcap_Flow.csv,TCP_IP-DoS-TCP,18,train,0,,,,,,Attack,SCENARIO_PROXY
+66,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-TCP3_train.pcap_Flow.csv,TCP_IP-DoS-TCP,18,val,262464,2023-08-31 00:49:31,2023-08-31 00:56:25,0,328024,val\TCP_IP-DoS-TCP\sid066__TCP_IP-DoS-TCP3_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+66,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-TCP3_train.pcap_Flow.csv,TCP_IP-DoS-TCP,18,test,2,2023-08-31 00:58:10,2023-08-31 00:58:10,262394,283721,test\TCP_IP-DoS-TCP\sid066__TCP_IP-DoS-TCP3_train.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+66,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-TCP3_train.pcap_Flow.csv,TCP_IP-DoS-TCP,18,embargo,65666,2023-08-31 00:56:26,2023-08-31 00:58:09,196771,328131,,Attack,SCENARIO_PROXY
+67,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP1_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,train,14704,2023-09-01 01:05:56,2023-09-01 01:28:51,0,14703,train\TCP_IP-DoS-UDP\sid067__TCP_IP-DoS-UDP1_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+67,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP1_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,val,0,,,,,,Attack,SCENARIO_PROXY
+67,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP1_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,test,0,,,,,,Attack,SCENARIO_PROXY
+67,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP1_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,embargo,0,,,,,,Attack,SCENARIO_PROXY
+68,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP2_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,train,12168,2023-09-01 01:28:51,2023-09-01 02:08:55,0,14735,train\TCP_IP-DoS-UDP\sid068__TCP_IP-DoS-UDP2_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+68,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP2_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,val,1645,2023-09-01 02:10:16,2023-09-01 21:05:28,442,14736,val\TCP_IP-DoS-UDP\sid068__TCP_IP-DoS-UDP2_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+68,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP2_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,test,0,,,,,,Attack,SCENARIO_PROXY
+68,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP2_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,embargo,924,2023-09-01 02:08:57,2023-09-01 02:10:15,412,14709,,Attack,SCENARIO_PROXY
+69,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP3_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,train,0,,,,,,Attack,SCENARIO_PROXY
+69,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP3_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,val,11863,2023-09-01 21:05:28,2023-09-01 21:13:28,0,14906,val\TCP_IP-DoS-UDP\sid069__TCP_IP-DoS-UDP3_train.pcap_Flow__val.csv,Attack,SCENARIO_PROXY
+69,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP3_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,test,728,2023-09-01 21:15:13,2023-09-01 21:15:45,238,14904,test\TCP_IP-DoS-UDP\sid069__TCP_IP-DoS-UDP3_train.pcap_Flow__test.csv,Attack,SCENARIO_PROXY
+69,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP3_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,embargo,2318,2023-09-01 21:13:29,2023-09-01 21:15:12,206,14908,,Attack,SCENARIO_PROXY
+70,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP4_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,train,18625,2023-09-01 00:03:00,2023-09-01 01:05:56,0,18624,train\TCP_IP-DoS-UDP\sid070__TCP_IP-DoS-UDP4_train.pcap_Flow__train.csv,Attack,SCENARIO_PROXY
+70,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP4_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,val,0,,,,,,Attack,SCENARIO_PROXY
+70,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP4_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,test,0,,,,,,Attack,SCENARIO_PROXY
+70,D:\COMPACT-MI-RFE\CICIoMT24\CSV\train\TCP_IP-DoS-UDP4_train.pcap_Flow.csv,TCP_IP-DoS-UDP,19,embargo,0,,,,,,Attack,SCENARIO_PROXY
+

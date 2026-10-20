@@ -1,0 +1,27 @@
+{
+  "default_mode": "dry_run",
+  "default_experiment": "mi_rfe_rf",
+  "default_config": "FW_512_FS_8",
+  "dataset_folder_id": "1Ixy5iJdeavkEbFJ3cy6LjkQ8h300OAxh",
+  "label_origin": "SCENARIO_PROXY",
+  "seed": 42,
+  "features": 380,
+  "metadata_and_label_columns": 14,
+  "mi_top": 100,
+  "k_grid": [1, 100],
+  "selection_criterion": "maximum validation accuracy; strict greater update; smallest k on ties",
+  "rf_fs16_official_results_already_completed": {
+    "FW_512_FS_16": {"stage": "5.2", "best_k": 8},
+    "FW_256_FS_16": {"stage": "5.3", "best_k": 18}
+  },
+  "rf_fs8_pending_order": ["FW_512_FS_8", "FW_256_FS_8"],
+  "rf_rfe": {"n_estimators": 100, "max_depth": 10, "min_samples_split": 2,
+    "max_features": "sqrt", "class_weight": "balanced", "random_state": 42,
+    "n_jobs": -1, "rfe_step": 1, "n_features_to_select": 1},
+  "rf_classifier": {"n_estimators": 300, "max_depth": 20,
+    "min_samples_split": 3, "max_features": "sqrt", "class_weight": "balanced",
+    "random_state": 42, "n_jobs": -1},
+  "svm_full_requires_technical_probe": true,
+  "resume_supported": false,
+  "test_read_after_final_refit": true
+}

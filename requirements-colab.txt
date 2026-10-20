@@ -1,0 +1,10 @@
+# Stage 5 scientific versions; install only after checking the actual Colab Python.
+# Prepared for Python 3.10–3.12. Do not downgrade the Colab interpreter.
+numpy==1.26.4
+pandas==2.3.3
+scipy==1.15.3
+scikit-learn==1.7.2
+joblib==1.5.3
+psutil>=5.9,<8
+google-api-python-client>=2,<3
+google-auth>=2,<3

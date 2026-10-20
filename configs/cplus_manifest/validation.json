@@ -1,0 +1,546 @@
+{
+  "design": "C+",
+  "cutoff_file": "D:\\COMPACT-MI-RFE\\huyen_code\\runs\\stage33_cutoff_optimization\\Cplus_cutoffs.csv",
+  "cutoff_sha256": "25c22d2c89f3d87e8c5ac33c0107a65b4d9a4e321573c54750fb0f19ccfec1a1",
+  "source_rows": 19891102,
+  "flows_by_role": {
+    "train": 10798603,
+    "val": 3599535,
+    "test": 3599534,
+    "embargo": 1893430
+  },
+  "retained_rows_read_back": 17997672,
+  "unique_output_source_rows": 17997672,
+  "output_flow_counts": {
+    "train": 10798603,
+    "val": 3599535,
+    "test": 3599534
+  },
+  "proxy_label_counts": [
+    {
+      "split": "embargo",
+      "flows": 1893430,
+      "benign": 1022,
+      "attack": 1892408
+    },
+    {
+      "split": "test",
+      "flows": 3599534,
+      "benign": 8526,
+      "attack": 3591008
+    },
+    {
+      "split": "train",
+      "flows": 10798603,
+      "benign": 25707,
+      "attack": 10772896
+    },
+    {
+      "split": "val",
+      "flows": 3599535,
+      "benign": 8587,
+      "attack": 3590948
+    }
+  ],
+  "scenario_flow_counts": [
+    {
+      "gid": 1,
+      "scenario": "ARP_Spoofing",
+      "split": "train",
+      "flows": 1617,
+      "benign": 0,
+      "attack": 1617
+    },
+    {
+      "gid": 2,
+      "scenario": "Benign",
+      "split": "test",
+      "flows": 8526,
+      "benign": 8526,
+      "attack": 0
+    },
+    {
+      "gid": 2,
+      "scenario": "Benign",
+      "split": "train",
+      "flows": 25707,
+      "benign": 25707,
+      "attack": 0
+    },
+    {
+      "gid": 2,
+      "scenario": "Benign",
+      "split": "val",
+      "flows": 8587,
+      "benign": 8587,
+      "attack": 0
+    },
+    {
+      "gid": 3,
+      "scenario": "MQTT-DDoS-Connect_Flood",
+      "split": "test",
+      "flows": 826423,
+      "benign": 0,
+      "attack": 826423
+    },
+    {
+      "gid": 3,
+      "scenario": "MQTT-DDoS-Connect_Flood",
+      "split": "train",
+      "flows": 1750338,
+      "benign": 0,
+      "attack": 1750338
+    },
+    {
+      "gid": 3,
+      "scenario": "MQTT-DDoS-Connect_Flood",
+      "split": "val",
+      "flows": 812976,
+      "benign": 0,
+      "attack": 812976
+    },
+    {
+      "gid": 4,
+      "scenario": "MQTT-DDoS-Publish_Flood",
+      "split": "test",
+      "flows": 18639,
+      "benign": 0,
+      "attack": 18639
+    },
+    {
+      "gid": 4,
+      "scenario": "MQTT-DDoS-Publish_Flood",
+      "split": "train",
+      "flows": 39839,
+      "benign": 0,
+      "attack": 39839
+    },
+    {
+      "gid": 4,
+      "scenario": "MQTT-DDoS-Publish_Flood",
+      "split": "val",
+      "flows": 4002,
+      "benign": 0,
+      "attack": 4002
+    },
+    {
+      "gid": 5,
+      "scenario": "MQTT-DoS-Connect_Flood",
+      "split": "test",
+      "flows": 28471,
+      "benign": 0,
+      "attack": 28471
+    },
+    {
+      "gid": 5,
+      "scenario": "MQTT-DoS-Connect_Flood",
+      "split": "train",
+      "flows": 69542,
+      "benign": 0,
+      "attack": 69542
+    },
+    {
+      "gid": 5,
+      "scenario": "MQTT-DoS-Connect_Flood",
+      "split": "val",
+      "flows": 8812,
+      "benign": 0,
+      "attack": 8812
+    },
+    {
+      "gid": 6,
+      "scenario": "MQTT-DoS-Publish_Flood",
+      "split": "train",
+      "flows": 1052,
+      "benign": 0,
+      "attack": 1052
+    },
+    {
+      "gid": 7,
+      "scenario": "MQTT-Malformed_Data",
+      "split": "train",
+      "flows": 2477,
+      "benign": 0,
+      "attack": 2477
+    },
+    {
+      "gid": 8,
+      "scenario": "Recon-OS_Scan",
+      "split": "test",
+      "flows": 17170,
+      "benign": 0,
+      "attack": 17170
+    },
+    {
+      "gid": 8,
+      "scenario": "Recon-OS_Scan",
+      "split": "train",
+      "flows": 35526,
+      "benign": 0,
+      "attack": 35526
+    },
+    {
+      "gid": 8,
+      "scenario": "Recon-OS_Scan",
+      "split": "val",
+      "flows": 2016,
+      "benign": 0,
+      "attack": 2016
+    },
+    {
+      "gid": 9,
+      "scenario": "Recon-Ping_Sweep",
+      "split": "train",
+      "flows": 114,
+      "benign": 0,
+      "attack": 114
+    },
+    {
+      "gid": 10,
+      "scenario": "Recon-Port_Scan",
+      "split": "test",
+      "flows": 90096,
+      "benign": 0,
+      "attack": 90096
+    },
+    {
+      "gid": 10,
+      "scenario": "Recon-Port_Scan",
+      "split": "train",
+      "flows": 212683,
+      "benign": 0,
+      "attack": 212683
+    },
+    {
+      "gid": 10,
+      "scenario": "Recon-Port_Scan",
+      "split": "val",
+      "flows": 92503,
+      "benign": 0,
+      "attack": 92503
+    },
+    {
+      "gid": 11,
+      "scenario": "Recon-VulScan",
+      "split": "test",
+      "flows": 1216,
+      "benign": 0,
+      "attack": 1216
+    },
+    {
+      "gid": 11,
+      "scenario": "Recon-VulScan",
+      "split": "train",
+      "flows": 2095,
+      "benign": 0,
+      "attack": 2095
+    },
+    {
+      "gid": 11,
+      "scenario": "Recon-VulScan",
+      "split": "val",
+      "flows": 1277,
+      "benign": 0,
+      "attack": 1277
+    },
+    {
+      "gid": 12,
+      "scenario": "TCP_IP-DDoS-ICMP",
+      "split": "train",
+      "flows": 3852,
+      "benign": 0,
+      "attack": 3852
+    },
+    {
+      "gid": 13,
+      "scenario": "TCP_IP-DDoS-SYN",
+      "split": "test",
+      "flows": 1048576,
+      "benign": 0,
+      "attack": 1048576
+    },
+    {
+      "gid": 13,
+      "scenario": "TCP_IP-DDoS-SYN",
+      "split": "train",
+      "flows": 2960578,
+      "benign": 0,
+      "attack": 2960578
+    },
+    {
+      "gid": 13,
+      "scenario": "TCP_IP-DDoS-SYN",
+      "split": "val",
+      "flows": 811890,
+      "benign": 0,
+      "attack": 811890
+    },
+    {
+      "gid": 14,
+      "scenario": "TCP_IP-DDoS-TCP",
+      "split": "test",
+      "flows": 732869,
+      "benign": 0,
+      "attack": 732869
+    },
+    {
+      "gid": 14,
+      "scenario": "TCP_IP-DDoS-TCP",
+      "split": "train",
+      "flows": 3291938,
+      "benign": 0,
+      "attack": 3291938
+    },
+    {
+      "gid": 14,
+      "scenario": "TCP_IP-DDoS-TCP",
+      "split": "val",
+      "flows": 1163890,
+      "benign": 0,
+      "attack": 1163890
+    },
+    {
+      "gid": 15,
+      "scenario": "TCP_IP-DDoS-UDP",
+      "split": "test",
+      "flows": 44930,
+      "benign": 0,
+      "attack": 44930
+    },
+    {
+      "gid": 15,
+      "scenario": "TCP_IP-DDoS-UDP",
+      "split": "train",
+      "flows": 130570,
+      "benign": 0,
+      "attack": 130570
+    },
+    {
+      "gid": 15,
+      "scenario": "TCP_IP-DDoS-UDP",
+      "split": "val",
+      "flows": 39038,
+      "benign": 0,
+      "attack": 39038
+    },
+    {
+      "gid": 16,
+      "scenario": "TCP_IP-DoS-ICMP",
+      "split": "train",
+      "flows": 3018,
+      "benign": 0,
+      "attack": 3018
+    },
+    {
+      "gid": 17,
+      "scenario": "TCP_IP-DoS-SYN",
+      "split": "test",
+      "flows": 439346,
+      "benign": 0,
+      "attack": 439346
+    },
+    {
+      "gid": 17,
+      "scenario": "TCP_IP-DoS-SYN",
+      "split": "train",
+      "flows": 1303977,
+      "benign": 0,
+      "attack": 1303977
+    },
+    {
+      "gid": 17,
+      "scenario": "TCP_IP-DoS-SYN",
+      "split": "val",
+      "flows": 378565,
+      "benign": 0,
+      "attack": 378565
+    },
+    {
+      "gid": 18,
+      "scenario": "TCP_IP-DoS-TCP",
+      "split": "test",
+      "flows": 327959,
+      "benign": 0,
+      "attack": 327959
+    },
+    {
+      "gid": 18,
+      "scenario": "TCP_IP-DoS-TCP",
+      "split": "train",
+      "flows": 918183,
+      "benign": 0,
+      "attack": 918183
+    },
+    {
+      "gid": 18,
+      "scenario": "TCP_IP-DoS-TCP",
+      "split": "val",
+      "flows": 262471,
+      "benign": 0,
+      "attack": 262471
+    },
+    {
+      "gid": 19,
+      "scenario": "TCP_IP-DoS-UDP",
+      "split": "test",
+      "flows": 15313,
+      "benign": 0,
+      "attack": 15313
+    },
+    {
+      "gid": 19,
+      "scenario": "TCP_IP-DoS-UDP",
+      "split": "train",
+      "flows": 45497,
+      "benign": 0,
+      "attack": 45497
+    },
+    {
+      "gid": 19,
+      "scenario": "TCP_IP-DoS-UDP",
+      "split": "val",
+      "flows": 13508,
+      "benign": 0,
+      "attack": 13508
+    }
+  ],
+  "timestamp_bucket_cuts": 0,
+  "segment_cuts": 0,
+  "activity_crossings_duration_plus_1s": 0,
+  "embargo_rows_found_in_output": 0,
+  "exact_duplicate_cross_split_groups": 0,
+  "row_fingerprint_mismatches": 0,
+  "source_row_split_mismatches": 0,
+  "per_source_role_count_mismatches": 0,
+  "output_file_count": 93,
+  "output_bytes_by_split": {
+    "train": 7141887375,
+    "val": 2387457164,
+    "test": 2374799690
+  },
+  "output_bytes_total": 11904144229,
+  "minimum_embargo_flows_by_boundary": [
+    {
+      "gid": 2,
+      "train_val_embargo": 511,
+      "val_test_embargo": 511
+    },
+    {
+      "gid": 3,
+      "train_val_embargo": 756303,
+      "val_test_embargo": 21330
+    },
+    {
+      "gid": 4,
+      "train_val_embargo": 17312,
+      "val_test_embargo": 14458
+    },
+    {
+      "gid": 5,
+      "train_val_embargo": 16148,
+      "val_test_embargo": 20180
+    },
+    {
+      "gid": 8,
+      "train_val_embargo": 15303,
+      "val_test_embargo": 15309
+    },
+    {
+      "gid": 10,
+      "train_val_embargo": 75867,
+      "val_test_embargo": 14652
+    },
+    {
+      "gid": 11,
+      "train_val_embargo": 2867,
+      "val_test_embargo": 1123
+    },
+    {
+      "gid": 13,
+      "train_val_embargo": 142338,
+      "val_test_embargo": 195898
+    },
+    {
+      "gid": 14,
+      "train_val_embargo": 92503,
+      "val_test_embargo": 261813
+    },
+    {
+      "gid": 15,
+      "train_val_embargo": 6273,
+      "val_test_embargo": 7020
+    },
+    {
+      "gid": 17,
+      "train_val_embargo": 15622,
+      "val_test_embargo": 65614
+    },
+    {
+      "gid": 18,
+      "train_val_embargo": 65567,
+      "val_test_embargo": 65666
+    },
+    {
+      "gid": 19,
+      "train_val_embargo": 924,
+      "val_test_embargo": 2318
+    }
+  ],
+  "checks": {
+    "source_rows_total_19891102": "PASS",
+    "cplus_role_counts_exact": "PASS",
+    "source_row_unique_across_output_splits": "PASS",
+    "timestamp_buckets_not_cut": "PASS",
+    "source_segments_nonoverlap": "PASS",
+    "embargo_at_least_511_each_guard": "PASS",
+    "activity_crossing_duration_plus_1s": "PASS",
+    "no_exact_duplicate_across_splits": "PASS",
+    "scenario_and_proxy_counts": "PASS",
+    "csv_readback_schema_sort_and_raw_fields": "PASS",
+    "source_csv_and_original_row_traceability": "PASS",
+    "raw_source_sha256_unchanged": "PASS",
+    "no_embargo_rows_exported": "PASS",
+    "future_windows_must_stay_within_each_source_file": "PASS_BY_SOURCE_SPLIT_SEGMENTS",
+    "capture_session_independence": "NOT_ESTABLISHED",
+    "actual_sliding_window_overlap": "NOT_CREATED_NOT_TESTED"
+  },
+  "session_audit_from_stage33": [
+    {
+      "shared_group_keys": 442625,
+      "keys_estimated_interval_overlap": 0,
+      "keys_possible_interval_overlap": 0,
+      "session_continuity_candidates_1s": 0,
+      "tcp_candidates_no_fin_rst": 0,
+      "non_transport_shared_keys": 18,
+      "boundary": "train_to_val"
+    },
+    {
+      "shared_group_keys": 76302,
+      "keys_estimated_interval_overlap": 0,
+      "keys_possible_interval_overlap": 0,
+      "session_continuity_candidates_1s": 0,
+      "tcp_candidates_no_fin_rst": 0,
+      "non_transport_shared_keys": 28,
+      "boundary": "train_to_test"
+    },
+    {
+      "shared_group_keys": 565649,
+      "keys_estimated_interval_overlap": 0,
+      "keys_possible_interval_overlap": 0,
+      "session_continuity_candidates_1s": 166,
+      "tcp_candidates_no_fin_rst": 19,
+      "non_transport_shared_keys": 20,
+      "boundary": "val_to_test"
+    }
+  ],
+  "shared_5tuple_keys": {
+    "any_shared_key": 914650,
+    "train_val": 612345,
+    "train_test": 541053,
+    "val_test": 723220
+  },
+  "capture_session_independence": "NOT_ESTABLISHED",
+  "windows_created": false,
+  "scaler_or_feature_selection_fit": false,
+  "models_trained": false
+}
