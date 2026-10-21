@@ -39,7 +39,7 @@ from sklearn.svm import SVC
 
 import ciciomt24_sliding_window as sw
 
-ROOT = Path(r"D:\COMPACT-MI-RFE")
+ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_WINDOWS = ROOT / "CICIoMT24" / "WINDOWS_CPLUS"
 DEFAULT_ORIGINAL = ROOT / "CODE_ctu13"
 FEATURE_NAMES = sw.OUTPUT_FEATURE_COLUMNS

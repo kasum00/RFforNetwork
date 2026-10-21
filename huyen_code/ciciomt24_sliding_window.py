@@ -19,7 +19,7 @@ import sys
 import time
 import warnings
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Iterable, Iterator, Sequence
 
 import numpy as np
@@ -493,7 +493,7 @@ def _write_batches_for_buffer(
         count_for_config = int(starts.size)
         out_dir = partial_root / f"FW_{fw}_FS_{fs}" / segment.split / segment.scenario
         out_path = out_dir / (
-            f"sid{segment.source_csv_id:03d}__{Path(segment.output_relative_path).stem}"
+            f"sid{segment.source_csv_id:03d}__{PureWindowsPath(segment.output_relative_path).stem}"
             f"__FW{fw}_FS{fs}_windows.csv"
         )
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -887,7 +887,7 @@ def _ctu13_script_hashes(input_root: Path) -> dict[str, str]:
 def _expected_window_output_path(root: Path, segment: Segment, fw: int, fs: int) -> Path:
     out_dir = root / f"FW_{fw}_FS_{fs}" / segment.split / segment.scenario
     return out_dir / (
-        f"sid{segment.source_csv_id:03d}__{Path(segment.output_relative_path).stem}"
+        f"sid{segment.source_csv_id:03d}__{PureWindowsPath(segment.output_relative_path).stem}"
         f"__FW{fw}_FS{fs}_windows.csv"
     )
 
