@@ -26,20 +26,27 @@ REPO = Path(__file__).resolve().parents[1]
 
 
 class NotebookAndManifestTests(unittest.TestCase):
-    def test_notebook_twelve_code_cells_parse_and_default_dry(self):
+    def test_notebook_required_stage_cells_parse_and_default_dry(self):
         notebook = json.loads((REPO / "notebooks" / "COMPACT_MI_RFE_ColabPro.ipynb").read_text(encoding="utf-8"))
         cells = [cell for cell in notebook["cells"] if cell["cell_type"] == "code"]
         self.assertEqual(notebook["nbformat"], 4)
-        self.assertEqual(len(cells), 12)
+        required = {f"stage6-cell-{number}" for number in range(1, 13)}
+        by_id = {}
         for cell in cells:
-            ast.parse("".join(cell["source"]))
-        self.assertIn('MODE = "dry_run"', "".join(cells[7]["source"]))
-        self.assertIn("if MODE == 'full_train':", "".join(cells[9]["source"]))
-        self.assertIn("expected = selected_versions()", "".join(cells[4]["source"]))
-        self.assertIn("discover_shared_dataset", "".join(cells[5]["source"]))
-        self.assertIn("DATASET_READY = False", "".join(cells[5]["source"]))
-        self.assertIn("DATASET_READY = DATASET_READY and", "".join(cells[6]["source"]))
-        self.assertIn("if not DATASET_READY:", "".join(cells[8]["source"]))
+            source = "".join(cell["source"])
+            ast.parse(source)
+            cell_id = cell.get("id") or cell.get("metadata", {}).get("id")
+            if cell_id in required:
+                self.assertNotIn(cell_id, by_id, f"Duplicate required cell: {cell_id}")
+                by_id[cell_id] = source
+        self.assertEqual(set(by_id), required)
+        self.assertRegex(by_id["stage6-cell-8"], r"MODE\s*=\s*['\"]dry_run['\"]")
+        self.assertRegex(by_id["stage6-cell-10"], r"if MODE == ['\"]full_train['\"]:")
+        self.assertIn("expected = selected_versions()", by_id["stage6-cell-5"])
+        self.assertIn("discover_shared_dataset", by_id["stage6-cell-6"])
+        self.assertIn("DATASET_READY = False", by_id["stage6-cell-6"])
+        self.assertIn("PASS_METADATA_SCHEMA", by_id["stage6-cell-7"])
+        self.assertIn("if not DATASET_READY:", by_id["stage6-cell-9"])
 
     def test_repo_inventory(self):
         self.assertTrue(repo_inventory(REPO)["pass"])

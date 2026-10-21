@@ -40,6 +40,54 @@ class RunSpec:
             raise ValueError("Run name must use only letters, digits, _ and -")
 
 
+def svm_stage71_checks(probe: dict, spec: RunSpec,
+                       training_hash: str, window_summary_hash: str) -> dict[str, bool]:
+    """A bounded probe is evidence for review, never automatic full-run approval."""
+    try:
+        from ciciomt24_svm_probe import SCHEMA as SVM_PROBE_SCHEMA
+    except ImportError:
+        return {"svm_technical_probe": False,
+                "svm_full_resource_gate_reviewed": False}
+    runs = probe.get("runs", []) if isinstance(probe, dict) else []
+    sizes = probe.get("sizes", []) if isinstance(probe, dict) else []
+    complete_runs = (
+        isinstance(sizes, list) and bool(sizes)
+        and all(isinstance(n, int) and 4 <= n <= 8192 for n in sizes)
+        and sizes == sorted(set(sizes))
+        and isinstance(runs, list) and len(runs) == len(sizes)
+        and all(
+            isinstance(row, dict)
+            and row.get("sample_rows") == n
+            and row.get("status") == "PASS_TECHNICAL_ONLY"
+            and row.get("worker_returncode") == 0
+            and row.get("supervisor_stop_reason") is None
+            and row.get("validation_csv_rows_read") == 0
+            and row.get("test_csv_rows_read") == 0
+            and isinstance(row.get("fits"), list) and bool(row["fits"])
+            and all(isinstance(fit, dict) and isinstance(fit.get("fit"), dict)
+                    and fit["fit"].get("converged") is True
+                    and fit["fit"].get("fit_status") == 0
+                    for fit in row["fits"])
+            for n, row in zip(sizes, runs)
+        )
+    )
+    valid = isinstance(probe, dict) and complete_runs and all((
+        bool(training_hash),
+        bool(window_summary_hash),
+        probe.get("schema") == SVM_PROBE_SCHEMA,
+        probe.get("status") == "PASS_TECHNICAL_ONLY",
+        probe.get("experiment") == spec.experiment,
+        probe.get("config") == spec.config,
+        str(probe.get("training_code_sha256", "")).casefold() == training_hash.casefold(),
+        str(probe.get("window_summary_sha256", "")).casefold() == window_summary_hash.casefold(),
+        probe.get("validation_csv_rows_read") == 0,
+        probe.get("test_csv_rows_read") == 0,
+        probe.get("full_training_authorized") is False,
+    ))
+    return {"svm_technical_probe": valid,
+            "svm_full_resource_gate_reviewed": False}
+
+
 def _training(repo: Path):
     source = str(repo / "huyen_code")
     if source not in sys.path:
@@ -105,7 +153,12 @@ def preflight(repo: Path, windows: Path, local_runs: Path, drive_root: Path,
             probe = json.loads(svm_probe_path.read_text(encoding="utf-8")) if svm_probe_path else {}
         except (OSError, ValueError):
             probe = {}
-        checks["svm_technical_probe"] = probe.get("status") == "PASS_TECHNICAL_ONLY" and probe.get("config") == spec.config and probe.get("test_csv_rows_read") == 0
+        # A small Train-only timing probe cannot certify full SVM resources.
+        # Stage 7.2 must define and explicitly approve that separate gate.
+        summary_path = windows / "window_run_summary.json"
+        checks.update(svm_stage71_checks(
+            probe, spec, sha256(repo / "huyen_code" / "ciciomt24_training.py"),
+            sha256(summary_path) if summary_path.is_file() else ""))
     if dataset is not None:
         manifest_root = manifest_root_for(windows, repo)
         store = training.WindowStore(windows, split_root=manifest_root)
@@ -139,14 +192,16 @@ def preflight(repo: Path, windows: Path, local_runs: Path, drive_root: Path,
 
 
 def run_technical_svm_probe(repo: Path, windows: Path, spec: RunSpec, output: Path) -> dict:
-    """Bounded Stage 5 benchmark for one config; never an official model/result."""
+    """Stage 7.1 Train-only probe; never an official model or full-run gate."""
     spec.validate()
     if spec.experiment not in ("baseline_svm", "mi_rfe_svm"):
         raise ValueError("SVM probe is only meaningful for SVM")
     if output.exists():
         raise FileExistsError(output)
-    training = _training(repo)
-    return training.benchmark_worker(windows, spec.config, output)
+    _training(repo)  # Adds the existing scientific implementation to sys.path.
+    from ciciomt24_svm_probe import run_probe
+    return run_probe(repo, windows, manifest_root_for(windows, repo),
+                     spec.config, spec.experiment, output)
 
 
 def run_one(repo: Path, windows: Path, local_runs: Path, drive_root: Path,
