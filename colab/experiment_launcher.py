@@ -206,15 +206,26 @@ def run_technical_svm_probe(repo: Path, windows: Path, spec: RunSpec, output: Pa
 
 def run_one(repo: Path, windows: Path, local_runs: Path, drive_root: Path,
             spec: RunSpec, *, unit_test_evidence: dict,
-            confirmation: str, svm_probe_path: Path | None = None) -> dict:
+            confirmation: str, svm_probe_path: Path | None = None,
+            official_authorization=None) -> dict:
     """Called only by an explicit notebook Full-train action and exact phrase."""
     expected_phrase = f"RUN {spec.experiment} {spec.config} {spec.run_name}"
     if confirmation != expected_phrase:
         raise PermissionError(f"Full training requires typing exactly: {expected_phrase}")
-    audit = preflight(repo, windows, local_runs, drive_root, spec,
-                      unit_test_evidence=unit_test_evidence, svm_probe_path=svm_probe_path)
-    if audit["status"] != "PASS":
-        raise RuntimeError(f"Resource/dataset preflight FAIL: {audit['checks']}")
+    if spec.experiment in ("baseline_svm", "mi_rfe_svm"):
+        from .svm_run_authorization import validate_context_for_training
+        authorized = validate_context_for_training(
+            official_authorization, spec.config, spec.experiment,
+            local_runs / spec.run_name)
+        audit = authorized.audit
+        if audit.get("status") != "PASS_STAGE73B_AUTHORIZED":
+            raise RuntimeError("Stage 7.3B SVM authorization audit did not pass")
+    else:
+        authorized = None
+        audit = preflight(repo, windows, local_runs, drive_root, spec,
+                          unit_test_evidence=unit_test_evidence, svm_probe_path=svm_probe_path)
+        if audit["status"] != "PASS":
+            raise RuntimeError(f"Resource/dataset preflight FAIL: {audit['checks']}")
     from .drive_manager import require_writable_result_root
     require_writable_result_root(drive_root)  # Actual write probe before training.
     training = _training(repo)
@@ -229,6 +240,18 @@ def run_one(repo: Path, windows: Path, local_runs: Path, drive_root: Path,
                 "adapter_code_sha256": sha256(Path(__file__)),
                 "original_script_hashes": training.source_hashes(repo / "CODE_ctu13"),
                 "library_versions": audit["runtime"]["versions"]}
+    if authorized is not None:
+        identity.update(
+            stage73b_authorization_sha256=authorized.approval_sha256,
+            git_commit=authorized.identity["git_commit"],
+            manifest_sha256=authorized.identity["manifest_sha256"],
+            validation_sha256=authorized.identity["validation_sha256"],
+            window_summary_sha256=authorized.identity["window_summary_sha256"],
+            dataset_fingerprint_scope_sha256=authorized.identity[
+                "dataset_fingerprint_scope_sha256"],
+            environment_profile_sha256=authorized.identity[
+                "environment_profile_sha256"],
+        )
     from .setup_colab import save_environment
     save_environment(drive_root / "environment" / (spec.run_name + ".json"),
                      {**identity, "runtime": audit["runtime"],
@@ -263,7 +286,8 @@ def run_one(repo: Path, windows: Path, local_runs: Path, drive_root: Path,
     try:
         result = training.run_official(windows, repo / "CODE_ctu13", out,
                                        spec.config, spec.experiment,
-                                       confirm_full_training=True)
+                                       confirm_full_training=True,
+                                       official_authorization=authorized)
     finally:
         training.WindowStore = original_store
         training.RunProgress = original_progress

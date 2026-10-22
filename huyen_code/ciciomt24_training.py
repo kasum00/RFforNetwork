@@ -362,6 +362,38 @@ def make_model(kind: str, *, baseline: bool = False):
     raise ValueError("Experiment must be svm baseline, MI-RFE-SVM or MI-RFE-RF")
 
 
+def official_hyperparameters(experiment: str) -> dict:
+    """Serializable scientific contract for the selected official experiment."""
+    if experiment == "baseline_svm":
+        return {
+            "experiment": experiment, "feature_count": 380,
+            "selection": "none", "classifier": BASELINE_SVM_PARAMS.copy(),
+            "final_refit_role": "train+val", "test_evaluations": 1,
+        }
+    if experiment == "mi_rfe_svm":
+        return {
+            "experiment": experiment, "mi_top_k": TOP_MI,
+            "mi_fit_role": "train", "rfe_step": 1,
+            "rfe_n_features_to_select": 1,
+            "rfe_estimator": SVM_RFE_PARAMS.copy(),
+            "k_grid": list(K_GRID),
+            "k_criterion": "validation_accuracy_strict_greater_smallest_k_tie",
+            "classifier": COMPACT_SVM_PARAMS.copy(),
+            "final_refit_role": "train+val", "test_evaluations": 1,
+        }
+    if experiment == "mi_rfe_rf":
+        return {
+            "experiment": experiment, "mi_top_k": TOP_MI,
+            "mi_fit_role": "train", "rfe_step": 1,
+            "rfe_n_features_to_select": 1,
+            "rfe_estimator": RF_RFE_PARAMS.copy(), "k_grid": list(K_GRID),
+            "k_criterion": "validation_accuracy_strict_greater_smallest_k_tie",
+            "classifier": RF_PARAMS.copy(), "final_refit_role": "train+val",
+            "test_evaluations": 1,
+        }
+    raise ValueError("Unknown official experiment")
+
+
 def rank_rfe(X_train_top100, y_train, names, kind: str, *, target: int = 1) -> dict:
     if len(names) != TOP_MI or X_train_top100.shape[1] != TOP_MI:
         raise ValueError("RF-RFE requires the 100 MI features")
@@ -906,11 +938,20 @@ def run_benchmark(root: Path, original: Path, out: Path, *, timeout: int = 240) 
 
 
 def run_official(root: Path, original: Path, out: Path, config: str, experiment: str,
-                 *, confirm_full_training: bool = False) -> dict:
+                 *, confirm_full_training: bool = False,
+                 official_authorization=None) -> dict:
     if not confirm_full_training:
         raise PermissionError("Full training requires explicit approval and --confirm-full-training")
     if config not in CONFIGS or experiment not in ("baseline_svm", "mi_rfe_svm", "mi_rfe_rf"):
         raise ValueError("Unknown official configuration/experiment")
+    authorization_record = None
+    if experiment in ("baseline_svm", "mi_rfe_svm"):
+        # Enforced below every launcher/CLI so --confirm-full-training alone can
+        # never bypass Stage 7.3B approval.
+        from colab.svm_run_authorization import validate_context_for_training
+        authorized = validate_context_for_training(
+            official_authorization, config, experiment, out)
+        authorization_record = authorized.public_record()
     if out.exists() or out.with_name(out.name + ".incomplete").exists():
         raise FileExistsError("Refusing to overwrite an official result or incomplete run")
     store = WindowStore(root)
@@ -930,6 +971,17 @@ def run_official(root: Path, original: Path, out: Path, config: str, experiment:
     staged.mkdir(parents=True)
     cache = staged / "matrices"
     cache.mkdir()
+    scientific_contract = official_hyperparameters(experiment)
+    feature_schema = {
+        "feature_count": len(FEATURE_NAMES), "feature_names": list(FEATURE_NAMES),
+        "excluded_from_X": list(sw.OUTPUT_METADATA_COLUMNS),
+        "nonfinite_policy": "replace NaN and +/-Inf with 0 before float32 fit",
+        "label_column": "Label", "label_origin": "SCENARIO_PROXY",
+    }
+    write_json(staged / "hyperparameters.json", scientific_contract)
+    write_json(staged / "feature_schema.json", feature_schema)
+    if authorization_record is not None:
+        write_json(staged / "authorization.json", authorization_record)
     write_json(staged / "preflight_audit.json", {
         "config": config, "experiment": experiment, "environment": environment(),
         "memory_admission": memory_admission, "disk_free_bytes": psutil.disk_usage(str(anchor)).free,
@@ -937,7 +989,10 @@ def run_official(root: Path, original: Path, out: Path, config: str, experiment:
         "original_sha256": scripts, "window_stat_snapshot_before": before,
         "implementation_sha256": sha256(Path(__file__)), "single_experiment_single_config": True,
         "test_csv_first_read_after_final_fit": True, "resume_supported": False,
-        "incomplete_checkpoints_are_not_official_results": True})
+        "incomplete_checkpoints_are_not_official_results": True,
+        "stage73b_authorization": authorization_record,
+        "scientific_contract": scientific_contract,
+        "feature_schema_sha256": sha256(staged / "feature_schema.json")})
     start = time.perf_counter()
     try:
         with PeakRSS() as total_ram, RunProgress(staged, config, experiment) as progress:
@@ -986,7 +1041,18 @@ def run_official(root: Path, original: Path, out: Path, config: str, experiment:
                           source_hashes_match=source_hashes(original) == scripts,
                           window_stat_snapshot_match=store.snapshot() == before,
                           label_origin="SCENARIO_PROXY", capture_session_independence="NOT_ESTABLISHED",
-                          test_read_after_final_refit=True, sampled_training=False)
+                          test_read_after_final_refit=True, sampled_training=False,
+                          authorization=authorization_record,
+                          hyperparameters=scientific_contract,
+                          feature_schema_sha256=sha256(staged / "feature_schema.json"),
+                          stage_runtimes_seconds={
+                              "mi": selection_measurements.get("mi", {}).get("seconds"),
+                              "rfe": selection_measurements.get("rfe", {}).get("seconds"),
+                              "final_refit": final["fit"].get("seconds"),
+                              "test_predict": final.get("predict_seconds"),
+                          },
+                          support_vectors=final["fit"].get("support_vectors"),
+                          fit_warnings=final["fit"].get("warnings", []))
             if not result["source_hashes_match"] or not result["window_stat_snapshot_match"]:
                 raise ValueError("Input/original integrity check failed")
             if result["rows_by_split"] != plan["windows"]:
@@ -1036,6 +1102,10 @@ def main():
     elif args.command == "_benchmark-worker":
         benchmark_worker(args.windows, args.config, args.output)
     else:
+        if args.experiment in ("baseline_svm", "mi_rfe_svm"):
+            raise PermissionError(
+                "Official SVM cannot run from the direct training CLI; use the "
+                "Stage 7.3B supervisor with a run-specific approval JSON")
         run_official(args.windows, args.original, args.output, args.config, args.experiment,
                      confirm_full_training=args.confirm_full_training)
 

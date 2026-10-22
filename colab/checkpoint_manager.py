@@ -90,7 +90,11 @@ class CheckpointSink:
                               "events.jsonl", "progress.json"),
         }.items():
             if event == stage:
-                for name in names:
+                required = names + (("authorization.json", "hyperparameters.json",
+                                     "feature_schema.json")
+                                    if self.identity["experiment"] in ("baseline_svm", "mi_rfe_svm")
+                                    else ())
+                for name in required:
                     source = self.local_run / name
                     if not source.is_file():
                         raise FileNotFoundError(f"Completed stage lacks required artifact: {source}")
@@ -117,6 +121,9 @@ class CheckpointSink:
         names = ("preflight_audit.json", "events.jsonl", "progress.json",
                  "selection_frozen.json", "features.json", "model.joblib",
                  "final_scaler.joblib", "result.json")
+        if result["experiment"] in ("baseline_svm", "mi_rfe_svm"):
+            names += ("authorization.json", "hyperparameters.json",
+                      "feature_schema.json")
         if result["experiment"] != "baseline_svm":
             names += ("mi_feature_scores.csv", "mi_top100.json",
                       "rfe_feature_ranking.csv", "k_search_results.json")
@@ -158,6 +165,8 @@ def publish_completed_checkpoint(drive_root: Path, run_name: str, expected: dict
         raise ValueError("Selection/refit/Test event order invalid")
     files = ["preflight_audit.json", "events.jsonl", "progress.json", "selection_frozen.json",
              "features.json", "model.joblib", "final_scaler.joblib", "result.json"]
+    if result["experiment"] in ("baseline_svm", "mi_rfe_svm"):
+        files += ["authorization.json", "hyperparameters.json", "feature_schema.json"]
     if result["experiment"] != "baseline_svm":
         files += ["mi_feature_scores.csv", "mi_top100.json", "rfe_feature_ranking.csv",
                   "k_search_results.json"]

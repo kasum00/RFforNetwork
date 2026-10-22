@@ -1,0 +1,40 @@
+{
+  "schema": "stage7.3b.svm.authorization.v1",
+  "decision": "BLOCKED_TEMPLATE_REQUIRES_EXPLICIT_HUMAN_APPROVAL",
+  "effective": false,
+  "identity": {
+    "experiment": null,
+    "config": null,
+    "run_name": null,
+    "git_commit": null,
+    "training_code_sha256": null,
+    "sliding_code_sha256": null,
+    "manifest_sha256": null,
+    "validation_sha256": null,
+    "window_summary_sha256": null,
+    "dataset_fingerprint_sha256": null,
+    "dataset_fingerprint_scope_sha256": null,
+    "environment_profile_sha256": null,
+    "original_script_hashes_sha256": null
+  },
+  "confirmation": "",
+  "budgets": {
+    "max_elapsed_seconds": null,
+    "max_tree_rss_bytes": null,
+    "min_start_available_ram_bytes": null,
+    "min_runtime_available_ram_bytes": null,
+    "min_free_disk_bytes": null,
+    "poll_interval_seconds": null
+  },
+  "technical_evidence": {
+    "policy": "REQUIRES_EXPLICIT_DECISION",
+    "evidence_sha256": null,
+    "evidence_identity": null,
+    "approved_replacement_policy": null,
+    "human_accepts_non_equivalence": false
+  },
+  "scientific_contract_acknowledged": false,
+  "test_is_single_final_evaluation_acknowledged": false,
+  "capture_session_independence_not_established_acknowledged": false,
+  "created_by_software_is_not_approval": true
+}
