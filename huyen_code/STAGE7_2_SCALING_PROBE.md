@@ -1,8 +1,12 @@
 # Stage 7.2 — Bounded SVM scaling probe (chỉ Train)
 
-**Trạng thái:** Mã và hướng dẫn đã chuẩn bị; Codex **chưa chạy** Python, unit
-test, probe, dataset audit hoặc training trong Stage 7.2. Không có kết quả
-16k/32k/64k để báo cáo. Full SVM vẫn bị khóa.
+**Trạng thái cập nhật 22/10/2026:** Đây là hướng dẫn triển khai ban đầu. Người
+dùng đã chạy tests và cả hai nhánh Baseline/MI-RFE-SVM scaling probe
+16k/32k/64k. Xem kết quả và giới hạn tại
+[STAGE7_2_REPORT.md](STAGE7_2_REPORT.md). File run MI-RFE `scaling01`
+trước đó sai identity; báo cáo dùng run `scaling02` đúng nhánh. Codex không
+tự chạy Python, unit test, probe, dataset audit hoặc training. Full SVM vẫn
+bị khóa, resource gate còn `REVIEW_REQUIRED`.
 
 ## Audit Stage 7.1 và thay đổi có chủ đích
 
