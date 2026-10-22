@@ -133,65 +133,142 @@ class SafetyTests(unittest.TestCase):
         self.assertEqual(audit["status"], "FAIL")  # Drive not mounted here.
 
     def test_adapter_persists_refit_before_test_and_restores_source_symbols(self):
-        """Mock orchestration only; no estimator fit or Test CSV read."""
+        """SVM adapter mock: authorization and artifacts are fixtures, never real approval/fit/Test reads."""
         import sys
+        from types import SimpleNamespace
+
         sys.path.insert(0, str(REPO / "huyen_code"))
         import ciciomt24_training as training
-        original_symbols = (training.WindowStore, training.RunProgress, training.fit_final_classifier)
+
+        original_symbols = (
+            training.WindowStore, training.RunProgress, training.fit_final_classifier
+        )
         with tempfile.TemporaryDirectory(dir=REPO / "colab") as temp:
             base = Path(temp)
             local, drive = base / "runs", base / "drive"
             for sub in ("experiment_results", "checkpoints", "environment"):
                 (drive / sub).mkdir(parents=True, exist_ok=True)
+
             spec = RunSpec("baseline_svm", "FW_512_FS_8", "adapter_unit")
-            fake_audit = {"status": "PASS", "checks": {"unit": True},
-                          "dataset": {"dataset_fingerprint_sha256": "fakefixture",
-                                      "fingerprint_scope": "unit fixture"},
-                          "runtime": {"versions": {"scikit-learn": "unit"}}}
+            spec.validate()
+            fake_audit = {
+                "status": "PASS_STAGE73B_AUTHORIZED",
+                "checks": {"unit_fixture_only": True},
+                "dataset": {
+                    "dataset_fingerprint_sha256": "fakefixture",
+                    "fingerprint_scope": "unit fixture",
+                },
+                "runtime": {"versions": {"scikit-learn": "unit"}},
+            }
+            # This object is accepted ONLY by the scoped mock below.
+            # The real sealed-context validator remains unchanged and is tested separately.
+            fake_authorized = SimpleNamespace(
+                audit=fake_audit,
+                approval_sha256="0" * 64,
+                identity={
+                    "experiment": spec.experiment,
+                    "config": spec.config,
+                    "run_name": spec.run_name,
+                    "git_commit": "0" * 40,
+                    "manifest_sha256": "0" * 64,
+                    "validation_sha256": "0" * 64,
+                    "window_summary_sha256": "0" * 64,
+                    "dataset_fingerprint_scope_sha256": "0" * 64,
+                    "environment_profile_sha256": "0" * 64,
+                },
+            )
+
+            # Confirm that the unmocked production gate rejects this dummy.
+            from colab.svm_run_authorization import validate_context_for_training
+            with self.assertRaises(PermissionError):
+                validate_context_for_training(
+                    fake_authorized, spec.config, spec.experiment,
+                    local / spec.run_name,
+                )
 
             def fake_fit(*args, **kwargs):
+                # Joblib serializes tiny dicts, not any fitted estimator.
                 return {"model": {"unit": True}, "scaler": {"unit": True}}
 
-            def fake_official(windows, originals, output, config, experiment, *, confirm_full_training):
+            def fake_official(windows, originals, output, config, experiment,
+                              *, confirm_full_training, official_authorization=None):
                 self.assertTrue(confirm_full_training)
+                self.assertIs(official_authorization, fake_authorized)
                 staged = output.with_name(output.name + ".incomplete")
                 staged.mkdir()
-                training.write_json(staged / "preflight_audit.json", {"unit": True})
-                training.write_json(staged / "selection_frozen.json", {"best_k": 380})
+
+                # Stage 7.3B checkpoint sink requires these files at every
+                # completed stage, starting with selection_frozen. Their
+                # payloads are deliberately marked unit-only fixture data.
+                for name, payload in {
+                    "authorization.json": {"unit_fixture_only": True},
+                    "hyperparameters.json": {"unit_fixture_only": True},
+                    "feature_schema.json": {"unit_fixture_only": True},
+                    "preflight_audit.json": {"unit_fixture_only": True},
+                    "selection_frozen.json": {"best_k": 380},
+                }.items():
+                    training.write_json(staged / name, payload)
+
                 with training.RunProgress(staged, config, experiment) as progress:
                     progress("selection_frozen")
                     training.fit_final_classifier(None, None, "svm", baseline=True)
                     progress("final_refit_completed")
-                    self.assertTrue((drive / "checkpoints" / "adapter_unit.incomplete" / "model.joblib").is_file())
+                    checkpoint = drive / "checkpoints" / "adapter_unit.incomplete"
+                    self.assertTrue((checkpoint / "model.joblib").is_file())
+                    self.assertTrue((checkpoint / "final_scaler.joblib").is_file())
+                    self.assertTrue((checkpoint / "authorization.json").is_file())
                     progress("test_evaluation_started", evaluation_number=1)
                     progress("test_evaluation_completed")
                     training.write_json(staged / "features.json", ["unit"])
-                    result = {"status": "PASS", "experiment": experiment, "config": config,
-                              "rows_by_split": EXPECTED[config], "test_evaluation_calls": 1,
-                              "features": ["unit"]}
+                    result = {
+                        "status": "PASS", "experiment": experiment, "config": config,
+                        "rows_by_split": EXPECTED[config], "test_evaluation_calls": 1,
+                        "features": ["unit"],
+                    }
                     training.write_json(staged / "result.json", result)
                     progress("run_validated")
                 os.replace(staged, output)
                 return result
 
-            with patch("colab.experiment_launcher.preflight", return_value=fake_audit), \
+            with patch("colab.svm_run_authorization.validate_context_for_training",
+                       return_value=fake_authorized) as validate_mock, \
                  patch("colab.drive_manager.require_writable_result_root", return_value=drive), \
                  patch.object(training, "fit_final_classifier", fake_fit), \
                  patch.object(training, "run_official", fake_official):
-                result = run_one(REPO, base / "not_used", local, drive, spec,
-                                 unit_test_evidence={"passed": True},
-                                 confirmation="RUN baseline_svm FW_512_FS_8 adapter_unit")
+                result = run_one(
+                    REPO, base / "not_used", local, drive, spec,
+                    unit_test_evidence={"passed": True},
+                    confirmation="RUN baseline_svm FW_512_FS_8 adapter_unit",
+                    official_authorization=fake_authorized,
+                )
+                validate_mock.assert_called_once_with(
+                    fake_authorized, spec.config, spec.experiment,
+                    local / spec.run_name,
+                )
+
             self.assertEqual(result["status"], "PASS")
-            self.assertTrue((drive / "experiment_results" / "adapter_unit" / "result.json").is_file())
+            finished = drive / "experiment_results" / "adapter_unit"
+            self.assertTrue((finished / "result.json").is_file())
+            self.assertTrue((finished / "authorization.json").is_file())
+            self.assertTrue((finished / "artifact_manifest.json").is_file())
+
             recovered = base / "recovered_drive"
             (recovered / "experiment_results").mkdir(parents=True)
             (recovered / "checkpoints").mkdir()
-            shutil.copytree(drive / "checkpoints" / "adapter_unit.incomplete",
-                            recovered / "checkpoints" / "adapter_unit.incomplete")
-            path = publish_completed_checkpoint(recovered, "adapter_unit", EXPECTED[spec.config])
+            shutil.copytree(
+                drive / "checkpoints" / "adapter_unit.incomplete",
+                recovered / "checkpoints" / "adapter_unit.incomplete",
+            )
+            path = publish_completed_checkpoint(
+                recovered, "adapter_unit", EXPECTED[spec.config]
+            )
             self.assertTrue((path / "result.json").is_file())
-            self.assertEqual((training.WindowStore, training.RunProgress,
-                              training.fit_final_classifier), original_symbols)
+            self.assertTrue((path / "authorization.json").is_file())
+            self.assertEqual(
+                (training.WindowStore, training.RunProgress,
+                 training.fit_final_classifier), original_symbols
+            )
+
 
 
 class FakeRequest:
