@@ -45,4 +45,6 @@ Artifact hiện có `result.json`, preflight, event/progress, selection_frozen, 
 
 ## Tests
 
-Đã viết nhưng **chưa chạy** `colab/test_svm_official_readiness.py`: identity mismatch, CRLF/LF, portable path, approval/probe không unlock, RAM FAIL, hai bộ SVM params, Train-only, tie nhỏ nhất, final refit→Test và checkpoint incomplete không đánh giá lại. Test Stage5/6/7.1/7.2 sẵn có kiểm schema, run trùng, timeout/RSS của **probe** và orchestration mock. Chưa có test worker isolation full SVM vì worker này chưa tồn tại; đây là blocker. Lệnh tự chạy ở `STAGE7_3A_COLAB_GUIDE.md`.
+Codex đã viết nhưng **không tự chạy** `colab/test_svm_official_readiness.py`: identity mismatch, CRLF/LF, portable path, approval/probe không unlock, RAM FAIL, hai bộ SVM params, Train-only, tie nhỏ nhất, final refit→Test và checkpoint incomplete không đánh giá lại. Test Stage5/6/7.1/7.2 sẵn có kiểm schema, run trùng, timeout/RSS của **probe** và orchestration mock. Chưa có test worker isolation full SVM vì worker này chưa tồn tại; đây là blocker. Lệnh tự chạy ở `STAGE7_3A_COLAB_GUIDE.md`.
+
+Người dùng chạy trên Colab và gửi log `Ran 52 tests ... FAILED (failures=1, skipped=3)`. Lỗi duy nhất là assertion tĩnh trong test do tìm chuỗi `test_evaluation_calls` ở `run_official`, trong khi trường này được tạo ở `evaluate_final` rồi trả về `run_official`. Đã sửa **test**, không sửa thuật toán; Codex không chạy lại test. Trạng thái hiện tại: **PENDING USER RE-RUN**, không tuyên bố PASS.

@@ -154,7 +154,9 @@ class ScientificContractTests(unittest.TestCase):
         self.assertLess(source.index("fitted = fit_final_classifier("),
                         source.index('store.load_full(config, "test"'))
         self.assertEqual(source.count("evaluate_final(fitted, test)"), 1)
-        self.assertIn("test_evaluation_calls", source)
+        # evaluate_final sets this field; run_official copies the returned dict.
+        self.assertIn('"test_evaluation_calls": 1', inspect.getsource(training.evaluate_final))
+        self.assertIn('result = {k: v for k, v in final.items()', source)
         self.assertIn('if out.exists() or out.with_name(out.name + ".incomplete").exists()', source)
         refit = inspect.getsource(training.fit_final_classifier)
         self.assertNotIn("select_mi(", refit)
