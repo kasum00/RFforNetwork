@@ -2,6 +2,8 @@
 
 ## Notebook SVM trên Google Colab — bốn cấu hình
 
+MI-RFE SVM nhiều phiên: [notebook có Cell 13 start/resume](notebooks/CICIoMT24_MI_RFE_SVM_RESUMABLE.ipynb), [hướng dẫn và lệnh tự kiểm thử](huyen_code/SVM_RESUMABLE_GUIDE.md), [audit CTU-13](huyen_code/SVM_RESUMABLE_AUDIT.md), [báo cáo triển khai](huyen_code/SVM_RESUMABLE_REPORT.md). Mặc định tắt training; chỉ tái dùng MI/RFE/k/final đã commit và xác minh, không resume giữa một lần SVC.fit. Source mới cần commit/test evidence/approval mới; tests được viết nhưng Codex chưa chạy.
+
 Bản tích hợp từ notebook FIXED_V3: [CICIoMT24_SVM_4_CONFIGS_COLAB.ipynb](notebooks/CICIoMT24_SVM_4_CONFIGS_COLAB.ipynb). Hỗ trợ `baseline_svm` và `mi_rfe_svm`; mỗi lượt chạy một cấu hình FW/FS. Source huấn luyện được khóa tại commit `c93eab87395edaf8fd141b29ee9914df066a2e7e`; các cờ chạy training và tạo approval mặc định tắt.
 
 Xem [hướng dẫn đẩy GitHub và chạy Colab](notebooks/CICIoMT24_SVM_4_CONFIGS_COLAB_GUIDE.md). Notebook này đã được review source; chưa được thực thi hoặc xác nhận full SVM trên Colab trong lần tích hợp này. Các mục bên dưới là nhật ký các giai đoạn trước.
