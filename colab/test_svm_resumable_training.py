@@ -198,7 +198,7 @@ class ScientificTests(unittest.TestCase):
             np.testing.assert_array_equal(Xv, loaded.transform(val.X[:, mi["indices"]]))
 
     def test_first_test_read_is_after_verified_final_and_claim(self):
-        source = inspect.getsource(runner.run_resumable)
+        source = inspect.getsource(runner._execute_resumable)
         claim = source.index("checkpoints.claim_test_once(")
         test = source.index('prepared_split(training, store, config, "test"')
         evaluate = source.index("training.evaluate_final(fitted, test)")

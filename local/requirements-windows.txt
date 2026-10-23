@@ -1,0 +1,8 @@
+# Scientific profile used by the origin Colab run. Python 3.13 x64 is required.
+# User installs with --only-binary=:all:; wheel availability is NOT verified here.
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.15.3
+scikit-learn==1.7.2
+joblib==1.5.3
+psutil==5.9.5

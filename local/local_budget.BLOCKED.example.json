@@ -1,0 +1,8 @@
+{
+  "max_elapsed_seconds": 36000,
+  "max_tree_rss_bytes": null,
+  "min_start_available_ram_bytes": null,
+  "min_runtime_available_ram_bytes": null,
+  "min_free_disk_bytes": null,
+  "poll_interval_seconds": 10
+}

@@ -314,15 +314,35 @@ def publish_results(checkpoints: CheckpointStore) -> Path:
 
 def run_resumable(repo: Path, windows: Path, local_runs: Path, authorization) -> dict:
     context = validate_authorization(authorization)
+    return _execute_resumable(repo, windows, local_runs, context)
+
+
+def run_windows_resumable(repo: Path, windows: Path, local_runs: Path, authorization) -> dict:
+    """Explicit local authorization; never manufacture a legacy Colab context."""
+    from functools import partial
+    from local.local_authorization import validate_local_context
+    from local.progress_console import LocalDeadline, LocalProgress
+    context = validate_local_context(authorization, repo, windows, local_runs)
+    session_dir = context.root / "sessions" / context.policy["session_id"]
+    return _execute_resumable(
+        repo, windows, local_runs, context, manifest_root=context.paths.manifest_root,
+        progress_factory=partial(LocalProgress,
+                                 console_interval=context.console_interval,
+                                 session_dir=session_dir),
+        deadline_factory=partial(LocalDeadline, stop_path=session_dir / "STOP_REQUESTED.json"))
+
+
+def _execute_resumable(repo: Path, windows: Path, local_runs: Path, context, *,
+                       manifest_root=None, progress_factory=None, deadline_factory=None) -> dict:
     spec = context.base.identity
     training = _training(repo)
     checkpoints = CheckpointStore(context.root, context.binding, resume=context.resume)
     config, session_id = spec["config"], context.policy["session_id"]
-    deadline = SessionDeadline(context.policy["session_budget_seconds"],
+    deadline = (deadline_factory or SessionDeadline)(context.policy["session_budget_seconds"],
                                context.policy["stop_starting_new_work_margin_seconds"],
                                deadline_epoch=getattr(context, "deadline_epoch", None))
     session_started = time.monotonic()
-    with DurableProgress(context.root, session_id,
+    with (progress_factory or DurableProgress)(context.root, session_id,
                          context.policy["heartbeat_interval_seconds"]) as progress:
         try:
             if checkpoints.load("final_test") is not None:
@@ -332,7 +352,7 @@ def run_resumable(repo: Path, windows: Path, local_runs: Path, authorization) ->
                         "test_evaluation_calls_this_session": 0}
             if (context.root / "results" / "test_evaluation_claim.json").exists():
                 raise PermissionError("Test was already claimed without a verified result; manual review required")
-            store = training.WindowStore(windows, split_root=manifest_root_for(windows, repo))
+            store = training.WindowStore(windows, split_root=manifest_root or manifest_root_for(windows, repo))
             training.source_hashes(repo / "CODE_ctu13")
             training.source_audit(repo / "CODE_ctu13")
             before = store.snapshot()

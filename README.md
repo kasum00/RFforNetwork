@@ -1,5 +1,9 @@
 # Nhật ký tiến độ nghiên cứu COMPACT-MI-RFE trên CICIoMT2024
 
+## Windows local / máy ảo — tiếp tục checkpoint Colab
+
+Bộ chạy MI-RFE SVM local: [cấu trúc thư mục và PowerShell](local/README_WINDOWS_LOCAL.md), [báo cáo triển khai và giới hạn](local/WINDOWS_LOCAL_REPORT.md). Giữ nguyên checkpoint scientific binding; có preflight, kiểm migration và approval Windows riêng. Source/tests mới chỉ được viết và review tĩnh, **chưa chạy**, không tự mở training. Chỉ tiếp tục FW512/FS16 của run Colab đã xác minh; không chạy lại từ k=1.
+
 ## Notebook SVM trên Google Colab — bốn cấu hình
 
 MI-RFE SVM nhiều phiên: [notebook có Cell 13 start/resume](notebooks/CICIoMT24_MI_RFE_SVM_RESUMABLE.ipynb), [hướng dẫn và lệnh tự kiểm thử](huyen_code/SVM_RESUMABLE_GUIDE.md), [audit CTU-13](huyen_code/SVM_RESUMABLE_AUDIT.md), [báo cáo triển khai](huyen_code/SVM_RESUMABLE_REPORT.md). Mặc định tắt training; chỉ tái dùng MI/RFE/k/final đã commit và xác minh, không resume giữa một lần SVC.fit. Source mới cần commit/test evidence/approval mới; tests được viết nhưng Codex chưa chạy.

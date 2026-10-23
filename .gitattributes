@@ -1,0 +1,3 @@
+# Preserve byte hashes of the original reference scripts and portable metadata.
+CODE_ctu13/** -text
+configs/cplus_manifest/** -text

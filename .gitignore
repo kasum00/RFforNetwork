@@ -1,6 +1,8 @@
-<<<<<<< HEAD
-# Datasets
+# Local datasets: never upload source flows or generated windows.
 CICIoMT24/
+CICFLOWMETER_FEATURE_CSV/
+CICFLOWMETER FEATURE_CSV/
+Huyen/
 WINDOWS_CPLUS/
 CSV_SPLIT_CPLUS/
 CSV_SPLIT/
@@ -11,8 +13,23 @@ datasets/
 *.pcapng
 *.parquet
 
-# Training artifacts
+# Preserve the deliberately versioned, portable approved C+ manifest.
+!configs/cplus_manifest/*.csv
+
+# Local audit output, training artifacts and interrupted output.
+STAGE1_AUDIT/
+STAGE1_AUDIT_SMOKE/
 runs/
+stage6_runs/
+svm_resumable/
+windows_local_runs/
+windows_local_control/
+approvals/
+approval_drafts/
+technical_probes/
+environment/
+*.incomplete/
+*.partial
 *.npy
 *.npz
 *.joblib
@@ -26,21 +43,13 @@ runs/
 venv/
 __pycache__/
 *.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
 
 # Secrets
 .env
 .env.*
 !.env.example
-=======
-# Local source data and generated millions of rows must never enter GitHub.
-CICIoMT24/
-CICFLOWMETER FEATURE_CSV/
-Huyen/
-huyen_code/runs/
-**/__pycache__/
-*.py[cod]
-.ipynb_checkpoints/
-*.incomplete/
-*.partial
-stage6_runs/
->>>>>>> b880548 (Prepare COMPACT-MI-RFE Colab Stage 6)

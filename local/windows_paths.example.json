@@ -1,0 +1,13 @@
+{
+  "repo": "C:\\Users\\LAB_LEE\\Desktop\\RFforNetwork_GITHUB",
+  "data_root": "D:\\COMPACT-MI-RFE\\CICIoMT24\\WINDOWS_CPLUS",
+  "manifest_root": "D:\\COMPACT-MI-RFE\\CICIoMT24\\CSV_SPLIT_CPLUS",
+  "checkpoint_root": "D:\\COMPACT-MI-RFE\\svm_resumable\\mi_rfe_svm\\FW_512_FS_16\\mi_rfe_svm_FW512_FS16_resumable01",
+  "output_root": "D:\\COMPACT-MI-RFE\\windows_local_runs",
+  "origin_approval": "D:\\COMPACT-MI-RFE\\approvals\\mi_rfe_svm_FW512_FS16_resumable01.session01.json",
+  "technical_evidence": "D:\\COMPACT-MI-RFE\\technical_probes\\REPLACE_WITH_ACTUAL_APPROVED_PROBE.json",
+  "dataset_checksums": "D:\\COMPACT-MI-RFE\\environment\\ciciomt24_windows_cplus_ssd_file_sha256_manifest.json",
+  "unit_test_evidence": "D:\\COMPACT-MI-RFE\\windows_local_control\\unit_tests.json",
+  "budget_file": "D:\\COMPACT-MI-RFE\\windows_local_control\\local_budget.json",
+  "session_id": "session02"
+}
