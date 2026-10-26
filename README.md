@@ -11,11 +11,10 @@ Repository này tái hiện pipeline **COMPACT-MI-RFE** từ mã CTU-13 trên b�
 | Audit 71 CSV / 19.891.102 flow | Hoàn tất |
 | Chia C+ Train/Validation/Test và embargo | Hoàn tất, đã kiểm định full dataset |
 | Sinh bốn cấu hình sliding window | Hoàn tất, 6.737.006 window |
-| MI-RFE + RF, FW512/FS16 | Hoàn tất và kiểm định |
-| MI-RFE + RF, FW256/FS16 | Hoàn tất và kiểm định |
-| MI-RFE + RF, hai cấu hình FS8 | Chưa có đủ kết quả chính thức trong repository này |
+| MI-RFE + RF, bốn FW/FS | Đã chạy 4/4 theo trạng thái dự án; README hiện trình bày chi tiết hai run FS16 đã kiểm định trong repo |
 | SVM bounded scaling probe | Hoàn tất đến 64.000 Train window |
 | SVM full/resumable | Đang chạy theo checkpoint; chưa có kết quả Test chính thức |
+| Stage 8 XGBoost | Source/notebook/tests đã viết; chưa chạy; MI-RFE-XGB còn BLOCKED policy |
 
 Ảnh trạng thái gần nhất do người dùng cung cấp ngày 26/10/2026 cho thấy một lượt **MI-RFE + SVM, FW256/FS8** đang ở `k=24`, đã hoàn tất `k=1..23`, checkpoint gần nhất là `k_search/k_023`, chưa có lỗi. Đây là trạng thái vận hành tạm thời, **không phải kết quả thực nghiệm cuối cùng**.
 
@@ -325,11 +324,13 @@ Các kiểm tra này **không chứng minh capture/session độc lập**. Metad
 ```text
 COMPACT-MI-RFE/
 ├── CODE_ctu13/          # Năm script CTU-13 gốc
+├── code_CICFLOW/        # Stage gates và paper reproduction package
 ├── huyen_code/          # Split, window, training, tests và báo cáo
 ├── colab/               # Adapter, authorization, supervisor, resumable
 ├── notebooks/           # Notebook Colab
 ├── local/               # Bộ chạy Windows local/máy ảo
 ├── configs/             # Manifest/config nhỏ được version-control
+├── docs/                # Audit, Stage index và tài liệu theo chủ đề
 ├── CICIoMT24/           # Dữ liệu cục bộ; không đưa lên Git
 └── README.md
 ```
@@ -358,7 +359,7 @@ Các tài liệu này là bản đồ điều hướng và kế hoạch migratio
 - [MI-RFE + RF FW256/FS16](huyen_code/STAGE53_REPORT.md)
 - [Resource preflight FW512/FS8](huyen_code/STAGE54_PREFLIGHT_REPORT.md)
 - [Memory optimization lab](huyen_code/STAGE55_MEMORY_OPTIMIZATION_REPORT.md)
-- [Triển khai Colab](STAGE6_REPORT.md)
+- [Triển khai Colab](docs/stages/stage6/STAGE6_REPORT.md)
 - [SVM source audit](huyen_code/STAGE7_1_SVM_AUDIT.md)
 - [SVM bounded scaling probe](huyen_code/STAGE7_2_REPORT.md)
 - [SVM official preflight](huyen_code/STAGE7_3A_REPORT.md)
@@ -366,6 +367,9 @@ Các tài liệu này là bản đồ điều hướng và kế hoạch migratio
 - [SVM resumable guide](huyen_code/SVM_RESUMABLE_GUIDE.md)
 - [SVM resumable report](huyen_code/SVM_RESUMABLE_REPORT.md)
 - [Windows local guide](local/README_WINDOWS_LOCAL.md)
+- [Stage 8 XGBoost report](huyen_code/STAGE8_REPORT.md)
+- [Stage 8 Colab guide](huyen_code/STAGE8_COLAB_GUIDE.md)
+- [Stage 8 XGBoost notebook](notebooks/STAGE8_XGBOOST_COLAB.ipynb)
 
 ## 9. Trình tự tái hiện an toàn
 
@@ -383,7 +387,18 @@ Các tài liệu này là bản đồ điều hướng và kế hoạch migratio
 
 Không sửa cờ FAIL thành PASS, không dùng probe như kết quả chính thức và không dùng Test để quyết định cấu hình.
 
-## 10. Giới hạn
+## 10. Stage 8 — XGBoost extension
+
+Stage 8 bổ sung hai experiment tách biệt khỏi RF/SVM cũ:
+
+- `baseline_xgb`: toàn bộ 380 feature.
+- `mi_rfe_xgb`: MI Top100 → RF-RFE step=1 → XGBoost k=1..100.
+
+Final XGBoost khóa `n_estimators=200`, `max_depth=10`, `min_child_weight=3`. Notebook mặc định dry-run, CPU `hist` là backend tham chiếu và không tự training khi mở hoặc Run all.
+
+Do CTU-13 không có nhánh XGBoost độc lập, official `mi_rfe_xgb` vẫn bị khóa cho đến khi người dùng phê duyệt riêng việc tái sử dụng RF-RFE policy của nhánh MI-RFE+RF. Stage 8 hiện mới ở trạng thái source/docs/tests written; chưa có official XGBoost result.
+
+## 11. Giới hạn
 
 - `SCENARIO_PROXY` có thể không phản ánh đúng từng flow.
 - Benign rất hiếm; Accuracy không đủ để đánh giá chất lượng.
@@ -393,6 +408,6 @@ Không sửa cờ FAIL thành PASS, không dùng probe như kết quả chính t
 - Bounded SVM probe không chứng minh full RBF-SVM khả thi.
 - Kết quả phụ thuộc phiên bản thư viện, hệ điều hành và tài nguyên máy.
 
-## 11. Tóm tắt
+## 12. Tóm tắt
 
 Pipeline C+ và 6.737.006 window đã hoàn tất. Hai thí nghiệm MI-RFE + Random Forest với FS16 đã có kết quả chính thức theo đúng thứ tự Train → Validation → final refit → Test. Nhánh SVM đã có audit, probe, authorization và checkpoint resumable; full result phải chờ run hoàn tất và kiểm định artifact trước khi công bố.

@@ -1,0 +1,50 @@
+{
+  "schema": "stage8.xgboost.config.v1",
+  "experiments": [
+    "baseline_xgb",
+    "mi_rfe_xgb"
+  ],
+  "configs": [
+    "FW_256_FS_8",
+    "FW_256_FS_16",
+    "FW_512_FS_8",
+    "FW_512_FS_16"
+  ],
+  "final_classifier": {
+    "n_estimators": 200,
+    "max_depth": 10,
+    "min_child_weight": 3,
+    "objective": "binary:logistic",
+    "eval_metric": "logloss",
+    "random_state": 42,
+    "n_jobs": -1,
+    "tree_method": "hist",
+    "class_weight": null,
+    "scale_pos_weight": 1.0,
+    "sampling": "NONE"
+  },
+  "backend": {
+    "default": "cpu",
+    "cpu": {
+      "tree_method": "hist",
+      "device": "cpu",
+      "reference": true
+    },
+    "cuda": {
+      "tree_method": "hist",
+      "device": "cuda",
+      "explicit_selection_required": true,
+      "bitwise_equivalence_to_cpu_not_claimed": true
+    }
+  },
+  "mi_rfe_xgb": {
+    "mi_top_k": 100,
+    "rfe_step": 1,
+    "k_grid": [1, 100],
+    "tie_rule": "smallest_k",
+    "rf_rfe_policy": "BLOCKED_PENDING_USER_APPROVAL",
+    "proposed_policy_id": "reuse_mi_rfe_rf_estimator_for_xgboost_v1"
+  },
+  "label_origin": "SCENARIO_PROXY",
+  "capture_session_independence": "NOT_ESTABLISHED"
+}
