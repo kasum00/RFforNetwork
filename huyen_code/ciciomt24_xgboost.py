@@ -54,19 +54,76 @@ RFE_POLICY_ID = "reuse_mi_rfe_rf_estimator_for_xgboost_v1"
 CAPTURE_SESSION_INDEPENDENCE = "NOT_ESTABLISHED"
 
 
+def strict_json_value(value: object, *, path: str = "$") -> object:
+    """Return JSON-native data and reject every non-finite numeric value.
+
+    XGBoost's default missing-value sentinel is normalized separately by
+    effective_xgb_parameters().  This generic validator must never silently
+    rewrite NaN/Inf to zero or null.
+    """
+    if value is None or isinstance(value, (str, bool)):
+        return value
+    if isinstance(value, (int, np.integer)) and not isinstance(value, bool):
+        return int(value)
+    if isinstance(value, (float, np.floating)):
+        number = float(value)
+        if not np.isfinite(number):
+            raise ValueError(
+                f"Non-finite numeric value is forbidden in strict JSON at "
+                f"{path}: {number!r}"
+            )
+        return number
+    if isinstance(value, Path):
+        return str(value)
+    if isinstance(value, dict):
+        result = {}
+        for key, item in value.items():
+            if not isinstance(key, (str, int, float, bool)) and key is not None:
+                raise TypeError(
+                    f"Unsupported JSON object key at {path}: "
+                    f"{type(key).__name__}"
+                )
+            if isinstance(key, float) and not np.isfinite(key):
+                raise ValueError(
+                    f"Non-finite JSON object key is forbidden at {path}: "
+                    f"{key!r}"
+                )
+            child = f"{path}.{key}"
+            result[str(key)] = strict_json_value(item, path=child)
+        return result
+    if isinstance(value, (list, tuple)):
+        return [
+            strict_json_value(item, path=f"{path}[{index}]")
+            for index, item in enumerate(value)
+        ]
+    raise TypeError(
+        f"Unsupported strict JSON value at {path}: {type(value).__name__}"
+    )
+
+
+def strict_json_text(value: object) -> str:
+    normalized = strict_json_value(value)
+    return json.dumps(
+        normalized,
+        indent=2,
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+
+
 def write_json(path: Path, value: object, *, exclusive: bool = False) -> None:
+    # Serialize and validate the complete payload before opening the target.
+    # A NaN/Inf/unsupported value therefore cannot leave a truncated JSON file.
+    payload = strict_json_text(value)
     path.parent.mkdir(parents=True, exist_ok=True)
     if exclusive:
         with path.open("x", encoding="utf-8") as handle:
-            json.dump(value, handle, indent=2, ensure_ascii=False, allow_nan=False)
+            handle.write(payload)
             handle.flush()
             os.fsync(handle.fileno())
         return
     tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(
-        json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False),
-        encoding="utf-8",
-    )
+    tmp.write_text(payload, encoding="utf-8")
     os.replace(tmp, path)
 
 
@@ -129,13 +186,37 @@ def make_xgb(backend: str = "cpu"):
 def effective_xgb_parameters(model) -> dict:
     sklearn_params = model.get_params(deep=False)
     booster_params = model.get_xgb_params()
+
+    def audit_parameters(parameters: dict, section: str) -> dict:
+        audited = {}
+        for name, value in parameters.items():
+            parameter_path = (
+                f"$.xgboost_effective_parameters.{section}.{name}"
+            )
+            if (
+                name == "missing"
+                and isinstance(value, (float, np.floating))
+                and np.isnan(float(value))
+            ):
+                # This is only a human-readable representation in audit JSON.
+                # The estimator retains its real np.nan missing-value sentinel.
+                audited[name] = "NaN"
+            else:
+                audited[name] = strict_json_value(
+                    value,
+                    path=parameter_path,
+                )
+        return audited
+
+    audited_sklearn = audit_parameters(sklearn_params, "sklearn")
+    audited_booster = audit_parameters(booster_params, "booster")
     return {
         "required": dict(XGB_REQUIRED_PARAMS),
-        "sklearn": {str(k): v for k, v in sklearn_params.items()},
-        "booster": {str(k): v for k, v in booster_params.items()},
+        "sklearn": audited_sklearn,
+        "booster": audited_booster,
         "class_balancing": {
             "class_weight": None,
-            "scale_pos_weight": booster_params.get("scale_pos_weight", 1.0),
+            "scale_pos_weight": audited_booster.get("scale_pos_weight", 1.0),
             "oversampling": False,
             "undersampling": False,
         },
@@ -182,7 +263,12 @@ def load_budget(path: Path) -> dict:
     if set(value) != required:
         raise ValueError(f"Budget must contain exactly: {sorted(required)}")
     for key in required:
-        if not isinstance(value[key], (int, float)) or value[key] <= 0:
+        if (
+            not isinstance(value[key], (int, float))
+            or isinstance(value[key], bool)
+            or not np.isfinite(float(value[key]))
+            or value[key] <= 0
+        ):
             raise ValueError(f"Budget {key} must be a positive number")
     if not 1 <= value["poll_interval_seconds"] <= 60:
         raise ValueError("poll_interval_seconds must be between 1 and 60")

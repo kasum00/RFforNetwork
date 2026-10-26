@@ -167,6 +167,85 @@ class RFEPolicyTests(unittest.TestCase):
         self.assertFalse(policy["approved"])
 
 
+class StrictJSONTests(unittest.TestCase):
+    def test_default_xgboost_missing_nan_is_audit_string_only(self):
+        model = FakeXGBClassifier(
+            **stage8.XGB_FIXED_POLICY,
+            device="cpu",
+            missing=np.nan,
+        )
+        effective = stage8.effective_xgb_parameters(model)
+        self.assertEqual(effective["sklearn"]["missing"], "NaN")
+        self.assertEqual(effective["booster"]["missing"], "NaN")
+        self.assertTrue(np.isnan(model.get_params()["missing"]))
+        encoded = stage8.strict_json_text(
+            {"xgboost_effective_parameters": effective}
+        )
+        decoded = json.loads(encoded)
+        self.assertEqual(
+            decoded["xgboost_effective_parameters"]["sklearn"]["missing"],
+            "NaN",
+        )
+
+    def test_non_missing_nonfinite_xgboost_parameter_fails_closed(self):
+        model = FakeXGBClassifier(
+            **stage8.XGB_FIXED_POLICY,
+            device="cpu",
+            learning_rate=np.inf,
+        )
+        with self.assertRaisesRegex(
+            ValueError,
+            r"xgboost_effective_parameters\.sklearn\.learning_rate",
+        ):
+            stage8.effective_xgb_parameters(model)
+
+    def test_invalid_exclusive_json_leaves_no_target_or_tmp_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "exclusive.json"
+            with self.assertRaisesRegex(ValueError, r"\$\.bad"):
+                stage8.write_json(
+                    path,
+                    {"bad": float("nan")},
+                    exclusive=True,
+                )
+            self.assertFalse(path.exists())
+            self.assertFalse(path.with_suffix(".json.tmp").exists())
+
+    def test_invalid_nonexclusive_json_preserves_existing_target(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "report.json"
+            original = '{"status":"OLD_VALID"}'
+            path.write_text(original, encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, r"\$\.nested\[0\]"):
+                stage8.write_json(
+                    path,
+                    {"nested": [float("-inf")]},
+                )
+            self.assertEqual(path.read_text(encoding="utf-8"), original)
+            self.assertFalse(path.with_suffix(".json.tmp").exists())
+
+    def test_valid_effective_parameters_round_trip_as_strict_json(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "preflight.json"
+            model = FakeXGBClassifier(
+                **stage8.XGB_FIXED_POLICY,
+                device="cpu",
+                missing=np.nan,
+            )
+            report = {
+                "status": "PASS",
+                "xgboost_effective_parameters":
+                    stage8.effective_xgb_parameters(model),
+            }
+            stage8.write_json(path, report, exclusive=True)
+            decoded = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(decoded["status"], "PASS")
+            self.assertEqual(
+                decoded["xgboost_effective_parameters"]["booster"]["missing"],
+                "NaN",
+            )
+
+
 class ScientificProtocolTests(unittest.TestCase):
     @mock.patch.object(stage8, "make_xgb")
     @mock.patch.object(core, "timed_fit")
