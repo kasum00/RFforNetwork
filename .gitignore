@@ -41,6 +41,7 @@ environment/
 # Python
 .venv/
 venv/
+.venv_stage*/
 __pycache__/
 *.pyc
 *.pyo
