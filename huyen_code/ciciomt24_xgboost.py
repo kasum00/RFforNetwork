@@ -31,6 +31,11 @@ try:
 except ModuleNotFoundError:  # Package import used by unit tests.
     from huyen_code import ciciomt24_training as core
 
+try:
+    import ciciomt24_xgboost_checkpoint as xgb_checkpoint
+except ModuleNotFoundError:  # Package import used by unit tests.
+    from huyen_code import ciciomt24_xgboost_checkpoint as xgb_checkpoint
+
 
 STAGE8_SCHEMA = "stage8.xgboost.official.v1"
 SUPPORTED_XGBOOST_VERSION = "3.4.1"
@@ -144,6 +149,50 @@ def load_xgboost():
     return importlib.import_module("xgboost")
 
 
+def cuda_device_inventory() -> dict:
+    """Verify a real CUDA device and expose VRAM without loading dataset rows."""
+
+    try:
+        pynvml = importlib.import_module("pynvml")
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "CUDA preflight requires pynvml (package nvidia-ml-py); "
+            "no CPU fallback is permitted"
+        ) from exc
+    try:
+        pynvml.nvmlInit()
+        count = int(pynvml.nvmlDeviceGetCount())
+        if count < 1:
+            raise RuntimeError("CUDA backend requested but NVML reports no GPU")
+        devices = []
+        for index in range(count):
+            handle = pynvml.nvmlDeviceGetHandleByIndex(index)
+            memory = pynvml.nvmlDeviceGetMemoryInfo(handle)
+            raw_name = pynvml.nvmlDeviceGetName(handle)
+            name = raw_name.decode("utf-8") if isinstance(raw_name, bytes) else str(raw_name)
+            devices.append(
+                {
+                    "index": index,
+                    "name": name,
+                    "vram_total_bytes": int(memory.total),
+                    "vram_free_bytes": int(memory.free),
+                    "vram_used_bytes": int(memory.used),
+                }
+            )
+        if not any(item["vram_free_bytes"] > 0 for item in devices):
+            raise RuntimeError("CUDA devices were found but no free VRAM was reported")
+        return {"available": True, "device_count": count, "devices": devices}
+    except Exception as exc:
+        if isinstance(exc, RuntimeError):
+            raise
+        raise RuntimeError(f"CUDA/NVML device verification failed: {exc}") from exc
+    finally:
+        try:
+            pynvml.nvmlShutdown()
+        except Exception:
+            pass
+
+
 def xgboost_runtime(backend: str) -> dict:
     if backend not in ("cpu", "cuda"):
         raise ValueError("XGBoost backend must be cpu or cuda")
@@ -163,14 +212,21 @@ def xgboost_runtime(backend: str) -> dict:
     }
     if backend == "cuda" and not cuda_built:
         raise RuntimeError("CUDA backend requested but this XGBoost build has no CUDA support")
+    gpu = cuda_device_inventory() if backend == "cuda" else {
+        "available": False,
+        "device_count": 0,
+        "devices": [],
+    }
     return {
         "version": version,
         "backend": backend,
         "tree_method": "hist",
         "device": "cuda" if backend == "cuda" else "cpu",
         "build_info": {str(k): str(v) for k, v in build.items()},
+        "gpu_inventory": gpu,
         "cpu_is_reference_backend": True,
         "gpu_may_not_be_bitwise_equivalent_to_cpu": backend == "cuda",
+        "automatic_backend_fallback": False,
     }
 
 
@@ -343,13 +399,18 @@ def source_identity(repo: Path, original: Path) -> dict:
     core_source = Path(core.__file__).resolve()
     expected_implementation = repo / "huyen_code" / "ciciomt24_xgboost.py"
     expected_core = repo / "huyen_code" / "ciciomt24_training.py"
+    checkpoint_source = Path(xgb_checkpoint.__file__).resolve()
+    expected_checkpoint = repo / "huyen_code" / "ciciomt24_xgboost_checkpoint.py"
     if implementation != expected_implementation.resolve():
         raise ValueError("Imported Stage 8 module is not from the selected repository")
     if core_source != expected_core.resolve():
         raise ValueError("Imported training core is not from the selected repository")
+    if checkpoint_source != expected_checkpoint.resolve():
+        raise ValueError("Imported checkpoint module is not from the selected repository")
     return {
         "stage8_sha256": sha256(implementation),
         "training_core_sha256": sha256(core_source),
+        "checkpoint_module_sha256": sha256(checkpoint_source),
         "original_ctu13_sha256": core.source_hashes(original),
         "source_audit": core.source_audit(original),
         "git": git_identity(repo),
@@ -361,6 +422,48 @@ def expected_counts(store: core.WindowStore, config: str) -> dict:
         role: sum(item.count for item in store.files[config] if item.role == role)
         for role in ("train", "val", "test")
     }
+
+
+def build_checkpoint_context(
+    *,
+    checkpoint_root: Path,
+    output: Path,
+    experiment: str,
+    config: str,
+    backend: str,
+    source: dict,
+    dataset: dict,
+    selected_features: list[str],
+    checkpoint_interval_rounds: int,
+) -> xgb_checkpoint.CheckpointContext:
+    return xgb_checkpoint.CheckpointContext(
+        checkpoint_root=checkpoint_root,
+        run_name=output.name,
+        run_id=output.name,
+        experiment=experiment,
+        config=config,
+        backend=backend,
+        xgboost_version=SUPPORTED_XGBOOST_VERSION,
+        git_commit=source["git"]["commit"],
+        source_hashes={
+            "stage8_sha256": source["stage8_sha256"],
+            "training_core_sha256": source["training_core_sha256"],
+            "checkpoint_module_sha256": source.get(
+                "checkpoint_module_sha256", source["stage8_sha256"]
+            ),
+            "original_ctu13_sha256": source["original_ctu13_sha256"],
+        },
+        dataset_identity=dataset,
+        hyperparameters={
+            **XGB_FIXED_POLICY,
+            "device": "cuda" if backend == "cuda" else "cpu",
+            "automatic_backend_fallback": False,
+        },
+        feature_names=list(core.FEATURE_NAMES),
+        selected_features=selected_features,
+        checkpoint_interval_rounds=checkpoint_interval_rounds,
+        total_rounds=XGB_REQUIRED_PARAMS["n_estimators"],
+    )
 
 
 def preflight(
@@ -375,6 +478,10 @@ def preflight(
     budget_path: Path,
     unit_test_evidence_path: Path,
     rfe_policy_path: Path | None,
+    *,
+    checkpoint_root: Path | None = None,
+    checkpoint_interval_rounds: int = 10,
+    resume: bool = False,
 ) -> dict:
     checks: dict[str, bool] = {}
     errors: dict[str, str] = {}
@@ -382,6 +489,24 @@ def preflight(
         raise ValueError(f"Unknown config: {config}")
     if experiment not in EXPERIMENTS:
         raise ValueError(f"Unknown experiment: {experiment}")
+    resolved_checkpoint_root = (
+        checkpoint_root if checkpoint_root is not None else output.parent / "checkpoints"
+    ).resolve()
+    checks["baseline_xgb_checkpoint_scope"] = experiment == "baseline_xgb"
+    if not checks["baseline_xgb_checkpoint_scope"]:
+        errors["baseline_xgb_checkpoint_scope"] = (
+            "Official checkpoint/resume is not approved for mi_rfe_xgb"
+        )
+    checks["checkpoint_interval"] = (
+        isinstance(checkpoint_interval_rounds, int)
+        and not isinstance(checkpoint_interval_rounds, bool)
+        and checkpoint_interval_rounds > 0
+        and XGB_REQUIRED_PARAMS["n_estimators"] % checkpoint_interval_rounds == 0
+    )
+    if not checks["checkpoint_interval"]:
+        errors["checkpoint_interval"] = (
+            "checkpoint interval must be a positive divisor of 200 rounds"
+        )
 
     try:
         runtime = xgboost_runtime(backend)
@@ -394,16 +519,35 @@ def preflight(
         checks["xgboost_dependency_and_parameters"] = False
         errors["xgboost_dependency_and_parameters"] = str(exc)
 
-    checks["output_is_fresh"] = (
-        not output.exists()
-        and not output.with_name(output.name + ".incomplete").exists()
-        and not (output.parent / f"{output.name}.supervisor.json").exists()
-    )
-    checks["cache_is_fresh"] = not cache_root.exists()
+    staged = output.with_name(output.name + ".incomplete")
+    supervisor_record = output.parent / f"{output.name}.supervisor.json"
+    if resume:
+        checks["output_is_fresh"] = not output.exists() and staged.is_dir()
+        # The local cache may disappear between Colab sessions.  It is derived
+        # from the immutable, identity-checked window dataset and may be rebuilt.
+        checks["cache_is_fresh"] = (
+            not cache_root.exists() or cache_root.is_dir()
+        )
+    else:
+        checks["output_is_fresh"] = (
+            not output.exists()
+            and not staged.exists()
+            and not supervisor_record.exists()
+        )
+        checks["cache_is_fresh"] = not cache_root.exists()
     checks["paths_are_distinct"] = not (
         output.resolve() == cache_root.resolve()
         or output.resolve() in cache_root.resolve().parents
         or cache_root.resolve() in output.resolve().parents
+    )
+    checkpoint_run_root = resolved_checkpoint_root / output.name
+    checks["checkpoint_paths_are_distinct"] = not (
+        checkpoint_run_root == output.resolve()
+        or checkpoint_run_root == cache_root.resolve()
+        or checkpoint_run_root in output.resolve().parents
+        or output.resolve() in checkpoint_run_root.parents
+        or checkpoint_run_root in cache_root.resolve().parents
+        or cache_root.resolve() in checkpoint_run_root.parents
     )
 
     try:
@@ -463,6 +607,50 @@ def preflight(
         checks["disk_admission"] = False
         errors["resource_budget"] = str(exc)
 
+    checkpoint_state = None
+    resume_from_stage = None
+    resume_from_round = 0
+    try:
+        if sources is None or identity is None or runtime is None:
+            raise RuntimeError("source, dataset and XGBoost identity must pass first")
+        context = build_checkpoint_context(
+            checkpoint_root=resolved_checkpoint_root,
+            output=output,
+            experiment=experiment,
+            config=config,
+            backend=backend,
+            source=sources,
+            dataset=identity,
+            selected_features=list(core.FEATURE_NAMES),
+            checkpoint_interval_rounds=checkpoint_interval_rounds,
+        )
+        state_store = xgb_checkpoint.ProtocolStateStore(context)
+        if resume:
+            checkpoint_state = state_store.load_for_resume()
+            manager = xgb_checkpoint.CheckpointManager(context)
+            validation_status = checkpoint_state["validation_fit_status"]
+            final_status = checkpoint_state["final_refit_status"]
+            if validation_status in {"IN_PROGRESS", "STAGE_COMPLETE"}:
+                verified = manager.latest(stage="validation_fit")
+                resume_from_stage = "validation_fit"
+                resume_from_round = verified.completed_rounds
+            if final_status in {"IN_PROGRESS", "STAGE_COMPLETE"}:
+                verified = manager.latest(stage="final_refit")
+                resume_from_stage = "final_refit"
+                resume_from_round = verified.completed_rounds
+            if final_status != "NOT_STARTED" and validation_status != "STAGE_COMPLETE":
+                raise xgb_checkpoint.CheckpointCompatibilityError(
+                    "final_refit cannot exist before validation_fit is complete"
+                )
+        elif context.run_root.exists():
+            raise FileExistsError(
+                "checkpoint run already exists; use explicit RESUME=True or a new run name"
+            )
+        checks["checkpoint_resume_identity"] = True
+    except Exception as exc:
+        checks["checkpoint_resume_identity"] = False
+        errors["checkpoint_resume_identity"] = str(exc)
+
     return {
         "schema": STAGE8_SCHEMA,
         "status": "PASS" if checks and all(checks.values()) else "BLOCKED",
@@ -483,7 +671,17 @@ def preflight(
         "unit_test_evidence": evidence,
         "test_feature_rows_read": 0,
         "model_fit_calls": 0,
-        "resume_supported": False,
+        "resume_supported": True,
+        "resume_requested": bool(resume),
+        "resume_accepted": bool(resume and checks["checkpoint_resume_identity"]),
+        "checkpoint_root": str(resolved_checkpoint_root),
+        "checkpoint_interval_rounds": checkpoint_interval_rounds,
+        "checkpoint_verified": bool(checks["checkpoint_resume_identity"]),
+        "checkpoint_state": checkpoint_state,
+        "resume_from_stage": resume_from_stage,
+        "resume_from_round": resume_from_round,
+        "total_rounds": XGB_REQUIRED_PARAMS["n_estimators"],
+        "automatic_backend_fallback": False,
         "capture_session_independence": CAPTURE_SESSION_INDEPENDENCE,
         "label_origin": "SCENARIO_PROXY",
     }
@@ -614,7 +812,10 @@ def validation_baseline_xgb(
     train: core.PreparedSplit,
     val: core.PreparedSplit,
     backend: str,
+    checkpoint_manager: xgb_checkpoint.CheckpointManager,
+    protocol_state: xgb_checkpoint.ProtocolStateStore,
     *,
+    resume_stage: bool,
     progress=None,
 ) -> dict:
     core.require_selection_roles(train, val)
@@ -623,7 +824,16 @@ def validation_baseline_xgb(
     X_val = scaler.transform(val.X)
     core.emit(progress, "baseline_validation_fit_started", train_rows=len(train.y))
     model = make_xgb(backend)
-    model, fit = core.timed_fit(model, X_train, train.y)
+    protocol_state.mark_stage("validation_fit", "IN_PROGRESS")
+    model, fit = checkpoint_manager.fit_stage(
+        model=model,
+        X=X_train,
+        y=train.y,
+        stage="validation_fit",
+        resume=resume_stage,
+        progress=progress,
+    )
+    protocol_state.mark_stage("validation_fit", "STAGE_COMPLETE")
     started = time.perf_counter()
     result = {
         "metrics": metrics(val.y, model.predict(X_val)),
@@ -641,6 +851,11 @@ def fit_final_xgb(
     val: core.PreparedSplit,
     selected_names: list[str],
     backend: str,
+    checkpoint_manager: xgb_checkpoint.CheckpointManager | None = None,
+    protocol_state: xgb_checkpoint.ProtocolStateStore | None = None,
+    *,
+    resume_stage: bool = False,
+    progress=None,
 ) -> dict:
     core.require_selection_roles(train, val)
     if (
@@ -670,7 +885,28 @@ def fit_final_xgb(
     del combined
     model = make_xgb(backend)
     validate_model_contract(model)
-    model, fit = core.timed_fit(model, scaled, labels)
+    if (checkpoint_manager is None) != (protocol_state is None):
+        raise ValueError(
+            "checkpoint_manager and protocol_state must be supplied together"
+        )
+    if checkpoint_manager is None:
+        # Compatibility path for the bounded scientific unit test/API.  The
+        # official worker always supplies both durable checkpoint objects and
+        # therefore never enters this branch.
+        if resume_stage:
+            raise ValueError("resume_stage requires durable checkpoint state")
+        model, fit = core.timed_fit(model, scaled, labels)
+    else:
+        protocol_state.mark_stage("final_refit", "IN_PROGRESS")
+        model, fit = checkpoint_manager.fit_stage(
+            model=model,
+            X=scaled,
+            y=labels,
+            stage="final_refit",
+            resume=resume_stage,
+            progress=progress,
+        )
+        protocol_state.mark_stage("final_refit", "STAGE_COMPLETE")
     del scaled
     return {
         "model": model,
@@ -757,11 +993,20 @@ def run_worker(
     budget_path: Path,
     unit_test_evidence_path: Path,
     rfe_policy_path: Path | None,
+    checkpoint_root: Path,
+    checkpoint_interval_rounds: int,
+    resume: bool,
     confirmation: str,
 ) -> dict:
-    expected = f"RUN STAGE8 {experiment} {config} {output.name} {backend}"
+    action = "RESUME" if resume else "RUN"
+    expected = f"{action} STAGE8 {experiment} {config} {output.name} {backend}"
     if confirmation != expected:
         raise PermissionError(f"Type exactly: {expected}")
+    if experiment != "baseline_xgb":
+        raise PermissionError(
+            "Official Stage 8 CUDA/checkpoint execution is currently approved only "
+            "for baseline_xgb; mi_rfe_xgb remains blocked"
+        )
     audit = preflight(
         repo,
         windows,
@@ -774,31 +1019,71 @@ def run_worker(
         budget_path,
         unit_test_evidence_path,
         rfe_policy_path,
+        checkpoint_root=checkpoint_root,
+        checkpoint_interval_rounds=checkpoint_interval_rounds,
+        resume=resume,
     )
     if audit["status"] != "PASS":
         raise RuntimeError(f"Stage 8 preflight is BLOCKED: {audit['checks']}")
 
     staged = output.with_name(output.name + ".incomplete")
-    staged.mkdir(parents=True)
-    cache_root.mkdir(parents=True)
-    write_json(staged / "preflight_audit.json", audit)
-    write_json(
-        staged / "run_identity.json",
-        {
-            "schema": STAGE8_SCHEMA,
-            "run_name": output.name,
-            "experiment": experiment,
-            "config": config,
-            "backend": backend,
-            "source_identity": audit["source_identity"],
-            "dataset_identity": audit["dataset_identity"],
-            "resume_supported": False,
-        },
+    if resume:
+        staged.mkdir(parents=True, exist_ok=True)
+    else:
+        staged.mkdir(parents=True)
+    cache_root.mkdir(parents=True, exist_ok=resume)
+    context = build_checkpoint_context(
+        checkpoint_root=checkpoint_root.resolve(),
+        output=output,
+        experiment=experiment,
+        config=config,
+        backend=backend,
+        source=audit["source_identity"],
+        dataset=audit["dataset_identity"],
+        selected_features=list(core.FEATURE_NAMES),
+        checkpoint_interval_rounds=checkpoint_interval_rounds,
     )
+    checkpoint_manager = xgb_checkpoint.CheckpointManager(context)
+    protocol_state = xgb_checkpoint.ProtocolStateStore(context)
+    if resume:
+        durable_state = protocol_state.load_for_resume()
+        write_json(
+            staged / f"resume_audit_{time.time_ns()}.json",
+            audit,
+            exclusive=True,
+        )
+    else:
+        durable_state = protocol_state.create_fresh()
+        write_json(staged / "preflight_audit.json", audit)
+        write_json(
+            staged / "run_identity.json",
+            {
+                "schema": STAGE8_SCHEMA,
+                "run_name": output.name,
+                "run_id": context.run_id,
+                "experiment": experiment,
+                "config": config,
+                "backend": backend,
+                "source_identity": audit["source_identity"],
+                "dataset_identity": audit["dataset_identity"],
+                "resume_supported": True,
+                "checkpoint_root": str(context.run_root),
+                "checkpoint_interval_rounds": checkpoint_interval_rounds,
+            },
+        )
+    validation_resume = resume and durable_state["validation_fit_status"] in {
+        "IN_PROGRESS",
+        "STAGE_COMPLETE",
+    }
+    final_refit_resume = resume and durable_state["final_refit_status"] in {
+        "IN_PROGRESS",
+        "STAGE_COMPLETE",
+    }
     store = core.WindowStore(windows)
     before = store.snapshot()
     started = time.perf_counter()
     train = val = test = None
+    baseline_validation = None
     test_guard = TestOnceGuard(staged)
     try:
         with core.PeakRSS() as peak, core.RunProgress(
@@ -810,7 +1095,11 @@ def run_worker(
                 staged / "stage_checkpoint.json",
                 {
                     "stage": "train_validation_loaded",
-                    "resume_supported": False,
+                    "resume_supported": True,
+                    "resume_requested": resume,
+                    "resume_accepted": bool(resume),
+                    "checkpoint_root": str(context.run_root),
+                    "checkpoint_interval_rounds": checkpoint_interval_rounds,
                     "train_rows": len(train.y),
                     "validation_rows": len(val.y),
                     "test_feature_rows_read": 0,
@@ -819,7 +1108,13 @@ def run_worker(
 
             if experiment == "baseline_xgb":
                 baseline_validation = validation_baseline_xgb(
-                    train, val, backend, progress=progress
+                    train,
+                    val,
+                    backend,
+                    checkpoint_manager,
+                    protocol_state,
+                    resume_stage=validation_resume,
+                    progress=progress,
                 )
                 selected = list(core.FEATURE_NAMES)
                 best_k = 380
@@ -850,6 +1145,9 @@ def run_worker(
                     "forest_fits": selection["ranking"]["forest_fits"],
                 }
 
+            if baseline_validation is None:
+                raise RuntimeError("baseline_xgb validation result is missing")
+
             write_json(
                 staged / "selection_frozen.json",
                 {
@@ -869,7 +1167,16 @@ def run_worker(
                 train_val_rows=len(train.y) + len(val.y),
                 features=len(selected),
             )
-            fitted = fit_final_xgb(train, val, selected, backend)
+            fitted = fit_final_xgb(
+                train,
+                val,
+                selected,
+                backend,
+                checkpoint_manager,
+                protocol_state,
+                resume_stage=final_refit_resume,
+                progress=progress,
+            )
             fitted["model"].save_model(str(staged / "model.ubj"))
             joblib.dump(fitted["scaler"], staged / "final_scaler.joblib")
             write_json(staged / "features.json", selected)
@@ -894,7 +1201,14 @@ def run_worker(
                 staged / "stage_checkpoint.json",
                 {
                     "stage": "final_refit_completed",
-                    "resume_supported": False,
+                    "resume_supported": True,
+                    "resume_requested": resume,
+                    "resume_accepted": bool(resume),
+                    "checkpoint_root": str(context.run_root),
+                    "completed_rounds": fitted["fit"]["completed_rounds"],
+                    "remaining_rounds": fitted["fit"]["remaining_rounds"],
+                    "total_rounds": fitted["fit"]["total_rounds"],
+                    "checkpoint_sha256": fitted["fit"]["checkpoint_sha256"],
                     "model_sha256": final_model_hash,
                     "fit_rows": fitted["fit_rows"],
                     "test_feature_rows_read": 0,
@@ -902,6 +1216,7 @@ def run_worker(
             )
             progress("final_refit_completed", **fitted["fit"])
 
+            protocol_state.request_test_once()
             test_guard.claim(final_model_hash)
             progress("test_claimed", evaluation_number=1)
             test = store.load_full(config, "test", cache_root, progress=progress)
@@ -911,6 +1226,19 @@ def run_worker(
                 evaluation_number=1,
             )
             evaluated = test_guard.evaluate(fitted, test)
+            write_json(
+                staged / "test_metrics.json",
+                {
+                    "schema": STAGE8_SCHEMA,
+                    "metrics": evaluated["metrics"],
+                    "test_rows_evaluated": evaluated["test_rows_evaluated"],
+                    "test_evaluation_calls": evaluated["test_evaluation_calls"],
+                },
+                exclusive=True,
+            )
+            protocol_state.complete_test_once(
+                metrics_sha256=sha256(staged / "test_metrics.json")
+            )
             progress("test_evaluation_completed", **evaluated["metrics"])
 
             rows = {
@@ -966,7 +1294,20 @@ def run_worker(
                 "label_origin": "SCENARIO_PROXY",
                 "capture_session_independence": CAPTURE_SESSION_INDEPENDENCE,
                 "sampled_training": False,
-                "resume_supported": False,
+                "resume_supported": True,
+                "resume_requested": resume,
+                "resume_accepted": bool(resume),
+                "checkpoint_root": str(context.run_root),
+                "checkpoint_interval_rounds": checkpoint_interval_rounds,
+                "checkpoint_verified": True,
+                "validation_fit_checkpoint": baseline_validation["fit"],
+                "final_refit_checkpoint": fitted["fit"],
+                "resume_from_stage": fitted["fit"]["resume_from_stage"],
+                "resume_from_round": fitted["fit"]["resume_from_round"],
+                "completed_rounds": fitted["fit"]["completed_rounds"],
+                "remaining_rounds": fitted["fit"]["remaining_rounds"],
+                "total_rounds": fitted["fit"]["total_rounds"],
+                "checkpoint_sha256": fitted["fit"]["checkpoint_sha256"],
             }
             write_json(staged / "result.json", result)
             progress("run_validated", status="PASS", **audit["rows_by_split"])
@@ -988,8 +1329,11 @@ def run_worker(
         os.replace(staged, output)
         return result
     except BaseException as exc:
+        failure_path = staged / "FAILED.json"
+        if failure_path.exists():
+            failure_path = staged / f"FAILED_{time.time_ns()}.json"
         write_json(
-            staged / "FAILED.json",
+            failure_path,
             {
                 "status": "INCOMPLETE_DO_NOT_USE",
                 "error": str(exc),
@@ -1039,6 +1383,14 @@ def stop_owned_tree(process: psutil.Process) -> None:
 
 
 def supervise(args) -> int:
+    resume_requested = bool(
+        args.resume or args.confirmation.startswith("RESUME STAGE8 ")
+    )
+    checkpoint_root = (
+        args.checkpoint_root
+        if args.checkpoint_root is not None
+        else args.output.parent.parent / "checkpoints" / "stage8_xgboost"
+    )
     audit = preflight(
         args.repo,
         args.windows,
@@ -1051,14 +1403,18 @@ def supervise(args) -> int:
         args.budget,
         args.unit_test_evidence,
         args.rfe_policy,
+        checkpoint_root=checkpoint_root,
+        checkpoint_interval_rounds=args.checkpoint_interval_rounds,
+        resume=resume_requested,
     )
     if args.preflight_report.exists():
         raise FileExistsError(args.preflight_report)
     write_json(args.preflight_report, audit, exclusive=True)
     if audit["status"] != "PASS":
         raise RuntimeError(f"Stage 8 preflight is BLOCKED: {audit['checks']}")
+    action = "RESUME" if resume_requested else "RUN"
     expected = (
-        f"RUN STAGE8 {args.experiment} {args.config} "
+        f"{action} STAGE8 {args.experiment} {args.config} "
         f"{args.output.name} {args.backend}"
     )
     if args.confirmation != expected:
@@ -1088,9 +1444,15 @@ def supervise(args) -> int:
         str(args.budget),
         "--unit-test-evidence",
         str(args.unit_test_evidence),
+        "--checkpoint-root",
+        str(checkpoint_root),
+        "--checkpoint-interval-rounds",
+        str(args.checkpoint_interval_rounds),
         "--confirmation",
         args.confirmation,
     ]
+    if resume_requested:
+        command.append("--resume")
     if args.rfe_policy is not None:
         command.extend(["--rfe-policy", str(args.rfe_policy)])
     child = subprocess.Popen(command)
@@ -1130,9 +1492,24 @@ def supervise(args) -> int:
         "elapsed_seconds": time.monotonic() - started,
         "peak_tree_rss_bytes": peak,
         "automatic_retry": False,
+        "backend": args.backend,
+        "resume_supported": True,
+        "resume_requested": resume_requested,
+        "resume_accepted": bool(resume_requested and audit["resume_accepted"]),
+        "checkpoint_root": str(checkpoint_root),
+        "checkpoint_interval_rounds": args.checkpoint_interval_rounds,
+        "checkpoint_verified": audit["checkpoint_verified"],
+        "resume_from_stage": audit["resume_from_stage"],
+        "resume_from_round": audit["resume_from_round"],
+        "total_rounds": XGB_REQUIRED_PARAMS["n_estimators"],
         "output": str(args.output),
     }
-    record_path = args.output.parent / f"{args.output.name}.supervisor.json"
+    record_name = (
+        f"{args.output.name}.resume-{time.time_ns()}.supervisor.json"
+        if resume_requested
+        else f"{args.output.name}.supervisor.json"
+    )
+    record_path = args.output.parent / record_name
     write_json(record_path, supervisor_record, exclusive=True)
     if supervisor_record["status"] != "PASS":
         raise RuntimeError(f"Stage 8 worker failed/stopped: {supervisor_record}")
@@ -1148,6 +1525,9 @@ def add_common(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--config", choices=CONFIGS, required=True)
     parser.add_argument("--experiment", choices=EXPERIMENTS, required=True)
     parser.add_argument("--backend", choices=("cpu", "cuda"), default="cpu")
+    parser.add_argument("--checkpoint-root", type=Path)
+    parser.add_argument("--checkpoint-interval-rounds", type=int, default=10)
+    parser.add_argument("--resume", action="store_true")
     parser.add_argument("--budget", type=Path, required=True)
     parser.add_argument("--unit-test-evidence", type=Path, required=True)
     parser.add_argument("--rfe-policy", type=Path)
@@ -1183,6 +1563,9 @@ def main() -> None:
             args.budget,
             args.unit_test_evidence,
             args.rfe_policy,
+            checkpoint_root=args.checkpoint_root,
+            checkpoint_interval_rounds=args.checkpoint_interval_rounds,
+            resume=args.resume,
         )
         write_json(args.report, report, exclusive=True)
         print(json.dumps(report, indent=2, ensure_ascii=False))
@@ -1191,6 +1574,11 @@ def main() -> None:
     elif args.command == "supervise":
         raise SystemExit(supervise(args))
     else:
+        checkpoint_root = (
+            args.checkpoint_root
+            if args.checkpoint_root is not None
+            else args.output.parent.parent / "checkpoints" / "stage8_xgboost"
+        )
         run_worker(
             args.repo,
             args.windows,
@@ -1203,6 +1591,9 @@ def main() -> None:
             args.budget,
             args.unit_test_evidence,
             args.rfe_policy,
+            checkpoint_root,
+            args.checkpoint_interval_rounds,
+            args.resume,
             args.confirmation,
         )
 
