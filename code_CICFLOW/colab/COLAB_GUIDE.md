@@ -4,11 +4,13 @@
 
 | Role | Windows | Google Drive / Colab |
 |---|---|---|
-| Project/source | `D:\COMPACT-MI-RFE` | `/content/drive/MyDrive/COMPACT-MI-RFE` |
-| Dataset root | `D:\COMPACT-MI-RFE\CICFLOWMETER_FEATURE_CSV` | `/content/drive/MyDrive/COMPACT-MI-RFE/CICFLOWMETER_FEATURE_CSV` |
-| Stage 4 runs | `code_CICFLOW\stage4_mi\runs` | `code_CICFLOW/stage4_mi/runs` |
-| Stage 5A runs | `code_CICFLOW\stage5_rfe\runs` | `code_CICFLOW/stage5_rfe/runs` |
-| Aggregate execution log | `code_CICFLOW\logs\ALL_EXECUTION_RESULTS.log` | `code_CICFLOW/logs/ALL_EXECUTION_RESULTS.log` |
+| Drive root | — | `/content/drive/MyDrive` |
+| Source root | `D:\COMPACT-MI-RFE\code_CICFLOW` | `/content/drive/MyDrive/code_CICFLOW` |
+| Dataset root | `D:\COMPACT-MI-RFE\CICFLOWMETER_FEATURE_CSV` | `/content/drive/MyDrive/CICFLOWMETER_FEATURE_CSV` |
+| Fresh result root | new runtime folder | `/content/drive/MyDrive/COMPACT_MI_RFE_FRESH_RUNS/RUN_MI_<UTC_TIMESTAMP>` |
+| Stage 4 runs | `stage4_mi\runs` | `COMPACT_MI_RFE_FRESH_RUNS/RUN_MI_<...>/stage4_mi/runs` |
+| Stage 5A runs | `stage5_rfe\runs` | `COMPACT_MI_RFE_FRESH_RUNS/RUN_MI_<...>/stage5_rfe/runs` |
+| Aggregate execution log | `code_CICFLOW\logs\ALL_EXECUTION_RESULTS.log` | `/content/drive/MyDrive/code_CICFLOW/logs/ALL_EXECUTION_RESULTS.log` |
 | Small-artifact backup | new Drive directory | `COMPACT_MI_RFE_BACKUPS` |
 
 The reference notebook remains:
@@ -60,8 +62,8 @@ that could copy Validation/Test files.
 ## Run the new notebook
 
 1. Upload/open `COMPACT_MI_RFE_CICFLOW_Colab.ipynb`.
-2. Set `MOUNT_DRIVE = True` and run the optional Drive setup cell.
-3. Confirm `PROJECT_ROOT`, `DATASET_ROOT`, and the four Run IDs.
+2. Mount Drive. The notebook expects source at `/content/drive/MyDrive/code_CICFLOW`.
+3. Confirm `SOURCE_ROOT`, `DATASET_ROOT`, and the four Run IDs.
 4. Run the path/layout and metadata cells in `MODE='dry_run'`.
 5. Review every configuration's schema, Train row count, resource gate, and
    Stage 4 identity before changing mode.
@@ -100,8 +102,16 @@ REFERENCE_RECONCILIATION_CONFIRMED = True
 CONFIRM_PROVISIONAL_RESEARCH = True
 ```
 
+Also set `EXISTING_RESULT_ROOT` to the existing fresh result directory, for
+example:
+
+```python
+EXISTING_RESULT_ROOT = '/content/drive/MyDrive/COMPACT_MI_RFE_FRESH_RUNS/RUN_MI_20261027T154149_761986Z'
+```
+
 Resume is allowed only for identity-matching incomplete runs. A COMPLETE run
-is never resumed or overwritten.
+is never resumed or overwritten. `full` creates a new fresh result root;
+`resume` and `verify` never create a new one.
 
 ### Verify
 

@@ -8,6 +8,7 @@ does not copy dataset Parquet files during backup.
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import shutil
 import time
@@ -57,19 +58,51 @@ def assert_single_dataset_root(dataset_root: Path) -> None:
 
 def build_paths(
     *,
-    project_root: Path,
+    project_root: Path | None = None,
     dataset_root: Path,
     drive_root: Path,
+    source_root: Path | None = None,
+    result_root: Path | None = None,
 ) -> dict[str, Path]:
     assert_single_dataset_root(dataset_root)
+    if source_root is None:
+        if project_root is None:
+            raise ColabContractError("project_root or source_root is required")
+        source_root = project_root / "code_CICFLOW"
+    if project_root is None:
+        project_root = drive_root
+    if result_root is None:
+        result_root = project_root
     return {
         "project_root": project_root,
+        "source_root": source_root,
         "dataset_root": dataset_root,
-        "stage4_runs_root": project_root / "code_CICFLOW" / "stage4_mi" / "runs",
-        "stage5_runs_root": project_root / "code_CICFLOW" / "stage5_rfe" / "runs",
+        "result_root": result_root,
+        "stage4_runs_root": result_root / "stage4_mi" / "runs",
+        "stage5_runs_root": result_root / "stage5_rfe" / "runs",
         "backup_root": drive_root / "COMPACT_MI_RFE_BACKUPS",
-        "aggregate_log": project_root / "code_CICFLOW" / "logs" / "ALL_EXECUTION_RESULTS.log",
+        "aggregate_log": source_root / "logs" / "ALL_EXECUTION_RESULTS.log",
     }
+
+
+def source_identity_sha256(source_root: Path) -> str:
+    """Hash the three runtime modules used by the Colab pipeline."""
+
+    relative_files = (
+        Path("colab") / "colab_pipeline.py",
+        Path("stage4_mi") / "mi_selection.py",
+        Path("stage5_rfe") / "rfe_selection.py",
+    )
+    digest = hashlib.sha256()
+    for relative in relative_files:
+        path = source_root / relative
+        if not path.is_file():
+            raise ColabContractError(f"Source file is missing: {path}")
+        digest.update(str(relative).replace("\\", "/").encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(path.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
 
 
 def check_source_layout(paths: Mapping[str, Path]) -> dict[str, Any]:
@@ -78,14 +111,23 @@ def check_source_layout(paths: Mapping[str, Path]) -> dict[str, Any]:
     required = {
         "project_root": paths["project_root"],
         "dataset_root": paths["dataset_root"],
-        "stage4_runs_root": paths["stage4_runs_root"],
-        "stage5_runs_root": paths["stage5_runs_root"],
     }
     missing = [str(path) for path in required.values() if not path.exists()]
+    source_files = {
+        "stage4_mi_selection": paths["source_root"] / "stage4_mi" / "mi_selection.py",
+        "stage5_rfe_selection": paths["source_root"] / "stage5_rfe" / "rfe_selection.py",
+        "colab_pipeline": paths["source_root"] / "colab" / "colab_pipeline.py",
+    }
+    missing.extend(str(path) for path in source_files.values() if not path.is_file())
     return {
         "status": "PASS" if not missing else "BLOCKED",
         "missing_paths": missing,
         "dataset_root": str(paths["dataset_root"]),
+        "output_roots": {
+            "stage4_runs_root": str(paths["stage4_runs_root"]),
+            "stage5_runs_root": str(paths["stage5_runs_root"]),
+            "created_at_runtime": True,
+        },
         "mixed_dataset_roots_rejected": True,
         "validation_test_values_read": False,
     }

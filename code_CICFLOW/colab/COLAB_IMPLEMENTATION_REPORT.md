@@ -11,6 +11,14 @@ The reference notebook `notebooks/COMPACT_MI_RFE_ColabPro.ipynb` was not
 overwritten. The CTU-13 source scripts and Stage 0–5 artifacts were not
 modified.
 
+The Colab path contract is now aligned with the reference-style Drive layout:
+
+- `DRIVE_ROOT=/content/drive/MyDrive`
+- `SOURCE_ROOT=/content/drive/MyDrive/code_CICFLOW`
+- `DATASET_ROOT=/content/drive/MyDrive/CICFLOWMETER_FEATURE_CSV`
+- Fresh outputs under `COMPACT_MI_RFE_FRESH_RUNS/RUN_MI_<UTC_TIMESTAMP>`
+- Stage 4 and Stage 5 run roots are created inside that fresh result root.
+
 ## Reference cell-purpose alignment
 
 The reference notebook was read and its operational sequence was mapped into
