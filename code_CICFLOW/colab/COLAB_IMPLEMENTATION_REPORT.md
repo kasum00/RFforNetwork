@@ -11,6 +11,29 @@ The reference notebook `notebooks/COMPACT_MI_RFE_ColabPro.ipynb` was not
 overwritten. The CTU-13 source scripts and Stage 0–5 artifacts were not
 modified.
 
+## Reference cell-purpose alignment
+
+The reference notebook was read and its operational sequence was mapped into
+the new CICFLOW notebook:
+
+| Reference purpose | CICFLOW notebook cell |
+|---|---|
+| Runtime/resource information | Cell 1 |
+| Google Drive mount and paths | Cell 2 |
+| Dataset source resolution | Cell 3 |
+| Safe source checkout | Cell 4 |
+| Dependencies and tests | Cell 5 |
+| Dataset/schema audit | Cell 6 |
+| Dataset readiness gate | Cell 7 |
+| Experiment/config selection | Cell 8 |
+| Safe preflight | Cell 9 |
+| Isolated MI/RFE run | Cell 10 |
+| Artifact verification | Cell 11 |
+| Summary and small-artifact backup | Cell 12 |
+
+The legacy scaffold cells remain below the authoritative CICFLOW sequence for
+traceability and are marked `LEGACY OLD ORCHESTRATOR CELLS — DO NOT RUN`.
+
 ## Operating modes
 
 The new notebook defaults to `MODE = 'dry_run'`. The modes are:
