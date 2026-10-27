@@ -1,0 +1,49 @@
+# CICFLOW MI-RFE Colab Implementation Report
+
+## Created artifacts
+
+- `D:\COMPACT-MI-RFE\notebooks\COMPACT_MI_RFE_CICFLOW_Colab.ipynb`
+- `D:\COMPACT-MI-RFE\code_CICFLOW\colab\colab_pipeline.py`
+- `D:\COMPACT-MI-RFE\code_CICFLOW\colab\tests\test_colab_pipeline.py`
+- `D:\COMPACT-MI-RFE\code_CICFLOW\colab\COLAB_GUIDE.md`
+
+The reference notebook `notebooks/COMPACT_MI_RFE_ColabPro.ipynb` was not
+overwritten. The CTU-13 source scripts and Stage 0–5 artifacts were not
+modified.
+
+## Operating modes
+
+The new notebook defaults to `MODE = 'dry_run'`. The modes are:
+
+- `dry_run`: path, root, schema/footer/resource, and contract checks; no MI or
+  RFE fit.
+- `full`: Stage 4 MI followed by Stage 5A RF/SVM-RFE, only after explicit
+  provisional and reference-reconciliation flags are enabled.
+- `resume`: resume only identity-matching incomplete runs.
+- `verify`: verify existing Stage 4/5 markers and manifests without fitting.
+
+Run IDs are configured explicitly for all four configurations. Existing
+completed Windows MI runs are not overwritten; a new Run ID is required for a
+new Colab MI variant.
+
+## Scientific status
+
+The notebook preserves `PROVISIONAL_REFERENCE_UNVERIFIED`. It does not claim
+that the Windows MI per-feature implementation is CTU-13 reference-equivalent.
+Stage 5A uses the separate RF/SVM branches already contracted in
+`code_CICFLOW/stage5_rfe`. XGBoost remains blocked.
+
+## Data protection
+
+- Dataset root mixing is rejected.
+- MI/RFE read only Train values.
+- Validation/Test are not opened by the Stage 4/5A orchestration cells.
+- Drive backup copies only small metadata/result artifacts and writes a backup
+  marker last. It never copies Parquet files.
+- Existing COMPLETE runs and checkpoints are protected from overwrite.
+
+## Execution status
+
+No notebook, Python, test, MI, RFE, or training execution was performed while
+creating these artifacts.
+

@@ -1,0 +1,59 @@
+{
+  "stage": "5A",
+  "name": "RF-RFE after MI Top-100",
+  "status": "PROVISIONAL_RESEARCH",
+  "input": {
+    "stage4_artifact": "top100_features.json",
+    "label_column": "Window_Label",
+    "original_feature_count": 380,
+    "selected_feature_count": 100,
+    "train_only": true,
+    "validation_values_read": false,
+    "test_values_read": false
+  },
+  "branches": {
+    "rf": {
+      "estimator": "sklearn.ensemble.RandomForestClassifier",
+      "parameters": {
+        "n_estimators": 100,
+        "max_depth": 10,
+        "min_samples_split": 2,
+        "max_features": "sqrt",
+        "class_weight": "balanced",
+        "random_state": 42,
+        "n_jobs": -1
+      },
+      "unresolved_parameters": []
+    },
+    "svm": {
+      "estimator": "sklearn.ensemble.RandomForestClassifier",
+      "parameters": {
+        "n_estimators": 100,
+        "max_depth": 15,
+        "class_weight": "balanced",
+        "random_state": 42,
+        "n_jobs": -1
+      },
+      "unresolved_parameters": [
+        "min_samples_split",
+        "max_features"
+      ],
+      "unresolved_policy": "Use sklearn constructor defaults provisionally; do not call reference-compatible. Reconcile source before promotion."
+    },
+    "xgboost": {
+      "status": "BLOCKED",
+      "reason": "No verified estimator/ranking contract; no estimator is selected."
+    }
+  },
+  "rfe": {
+    "n_features_to_select": 1,
+    "step": 1,
+    "importance_getter": "auto",
+    "ranking_tie_policy": "sklearn RFE step=1 np.argsort(importances) semantics; no custom estimator tie-break"
+  },
+  "scientific_status": {
+    "official_reproduction": false,
+    "reference_status": "PROVISIONAL_REFERENCE_UNVERIFIED"
+  }
+}
+
