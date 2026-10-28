@@ -1,0 +1,53 @@
+{
+  "contract": "CICFLOW_CLASSIFIER_PARAMETERS",
+  "confirmed_by_user_on": "2026-10-27",
+  "scientific_status": "PROVISIONAL_RESEARCH",
+  "scope": ["validation_k_search", "final_classifier_refit"],
+  "classifier_training_implemented_in_mi_rfe_notebook": true,
+  "implementation": "notebooks/COMPACT_MI_RFE_CICFLOW_Colab_V2.ipynb -> code_CICFLOW/colab/cicflow_reference_pipeline.py",
+  "implementation_scope": "RF/SVM k=1..100, freeze selection, Train+Validation refit, one Test evaluation. XGBoost ranking remains BLOCKED. Code written; tests/training not run by Codex.",
+  "models": {
+    "rf": {
+      "estimator": "sklearn.ensemble.RandomForestClassifier",
+      "confirmed_parameters": {
+        "n_estimators": 300,
+        "max_depth": 20,
+        "min_samples_split": 3
+      },
+      "reference": "CODE_ctu13/[[CTU13]9_ex2_rf.py: RF_PARAMS; huyen_code/ciciomt24_training.py: RF_PARAMS"
+    },
+    "svm": {
+      "estimator": "sklearn.svm.SVC",
+      "confirmed_parameters": {
+        "C": 10.0,
+        "max_iter": 20000
+      },
+      "reference": "CODE_ctu13/[[CTU13]8_experiment2_svm.py: SVM_PARAMS; huyen_code/ciciomt24_training.py: COMPACT_SVM_PARAMS"
+    },
+    "xgboost": {
+      "estimator": "xgboost.XGBClassifier",
+      "confirmed_parameters": {
+        "n_estimators": 200,
+        "max_depth": 10,
+        "min_child_weight": 3
+      },
+      "reference": "huyen_code/ciciomt24_xgboost.py: XGB_REQUIRED_PARAMS"
+    }
+  },
+  "unspecified_parameters": "Must be resolved against the classifier's source and recorded before training; these confirmed fields are not a complete estimator configuration.",
+  "rfe_scope": {
+    "this_contract_changes_rfe_estimators": false,
+    "rf_branch_reference_estimator": {
+      "n_estimators": 100,
+      "max_depth": 10,
+      "min_samples_split": 2
+    },
+    "svm_branch_reference_estimator": {
+      "estimator": "RandomForestClassifier",
+      "n_estimators": 100,
+      "max_depth": 15
+    },
+    "reason": "The reference defines separate classifier and RFE-estimator parameter dictionaries. Applying classifier parameters to RFE changes the scientific ranking and requires a separately approved variant."
+  },
+  "existing_results": "Do not rewrite completed manifests, results or checkpoints to relabel their parameters."
+}
