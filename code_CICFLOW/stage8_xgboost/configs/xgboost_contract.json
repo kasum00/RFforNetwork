@@ -1,0 +1,30 @@
+{
+  "format": "cicflow.stage8.baseline.all4.v1",
+  "experiment": "baseline_xgb",
+  "mi_rfe_xgb": "BLOCKED_PENDING_SEPARATE_RFE_POLICY_APPROVAL",
+  "scientific_status": "PROVISIONAL_RESEARCH",
+  "official_status": "OFFICIAL_BLOCKED",
+  "xgboost_version": "3.4.1",
+  "parameters": {
+    "n_estimators": 200,
+    "max_depth": 10,
+    "min_child_weight": 3,
+    "objective": "binary:logistic",
+    "eval_metric": "logloss",
+    "random_state": 42,
+    "n_jobs": -1,
+    "tree_method": "hist"
+  },
+  "backend_default": "cpu",
+  "backend_fallback": false,
+  "unspecified_parameters": "Preserve XGBoost 3.4.1 constructor defaults; record get_params and native Booster save_config before fit and after final fit. No invented learning-rate, sampling, balancing or regularization values.",
+  "feature_selection": "NOT_APPLICABLE: all 380 original features; do not read RF rankings, RF best-k, RF models or RF scalers",
+  "preprocessing": "CICFLOW float32 nonfinite-to-zero, StandardScaler fit Train for Validation; new scaler fit Train+Validation for final refit",
+  "early_stopping": false,
+  "checkpoint_interval_rounds": 10,
+  "total_rounds_per_fit": 200,
+  "test_evaluations_per_config": 1,
+  "label_mapping_contract": {"0": "Benign_proxy", "1": "Attack_proxy"},
+  "label_mapping_provenance": "UNKNOWN unless bound sidecar evidence establishes it; never official",
+  "capture_session_independence": "UNKNOWN"
+}

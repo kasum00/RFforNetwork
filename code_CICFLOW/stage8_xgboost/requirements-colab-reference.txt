@@ -1,0 +1,11 @@
+# Reference Stage8 profile. Install only by an explicit user action, then restart runtime.
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.15.3
+scikit-learn==1.7.2
+joblib==1.5.3
+psutil==5.9.5
+xgboost==3.4.1
+nvidia-ml-py==13.580.82
+# Additional Parquet IO dependency: actual installed version is recorded/bound.
+pyarrow
