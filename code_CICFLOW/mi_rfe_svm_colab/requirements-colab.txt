@@ -1,0 +1,10 @@
+# Same scientific environment profile as the existing repository, no auto-install.
+numpy==1.26.4; python_version < "3.13"
+numpy==2.2.6; python_version >= "3.13" and python_version < "3.14"
+pandas==2.3.3
+scipy==1.15.3
+scikit-learn==1.7.2
+joblib==1.5.3
+psutil>=5.9,<8
+# Actual Arrow version is recorded and must match exactly on resume/import.
+pyarrow
