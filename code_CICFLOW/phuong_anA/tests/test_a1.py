@@ -1,4 +1,5 @@
 import tempfile
+import io
 import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -132,7 +133,14 @@ class DataTests(unittest.TestCase):
 
     def test_train_validation_checksum_mismatch_blocks(self):
         with (self.folder / "train_windows.parquet").open("ab") as f: f.write(b"changed")
-        with self.assertRaisesRegex(Blocked, "SHA256 differs"):
+        with patch("pyarrow.parquet.ParquetFile", side_effect=AssertionError("Footer opened before checksum validation")), \
+             self.assertRaisesRegex(Blocked, "SHA256 differs: train"):
+            self.inspect()
+
+    def test_validation_checksum_checked_before_any_footer(self):
+        with (self.folder / "val_windows.parquet").open("ab") as f: f.write(b"changed")
+        with patch("pyarrow.parquet.ParquetFile", side_effect=AssertionError("Footer opened before checksum validation")), \
+             self.assertRaisesRegex(Blocked, "SHA256 differs: val"):
             self.inspect()
 
     def test_missing_manifest_and_wrong_split_or_label_provenance_blocked(self):
@@ -240,3 +248,66 @@ class CheckpointTests(unittest.TestCase):
             self.assertEqual(before, {n: info(store.remote / "results" / n) for n in before})
         with self.assertRaises(Blocked):
             store.commit("after_completion", {"mi_top100.json": state / "mi_top100.json"})
+
+
+class SourceEvidenceTests(unittest.TestCase):
+    def source_fixture(self, root):
+        from phuong_anA.contract import RUNTIME_SOURCE_FILES
+        extra = ("stage4_mi/mi_selection.py", "stage5_rfe/rfe_selection.py", "colab/test_cicflow_reference_pipeline.py")
+        for name in (*RUNTIME_SOURCE_FILES, *extra):
+            path = root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text('{}' if path.suffix == '.json' else '# Synthetic source placeholder\n', encoding="utf-8")
+        return Mock(SOURCE_FILES=extra)
+
+    def test_runtime_snapshot_binds_frozen_evidence_without_legacy_generators(self):
+        from phuong_anA.contract import source_snapshot
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            module = self.source_fixture(root)
+            with patch("phuong_anA.contract.core", return_value=module):
+                before = source_snapshot(root)
+                self.assertIn("mi_rfe_svm_colab/runner.py", before["files"])
+                self.assertIn("phuong_anA/evidence/cicflow_split_evidence.json", before["files"])
+                self.assertNotIn("stage29_cplus_integrity.py", before["files"])
+                (root / "stage29_cplus_integrity.py").write_text("# Historical generator, not executed by A1\n")
+                self.assertEqual(source_snapshot(root), before)
+                (root / "phuong_anA/evidence/cicflow_split_evidence.json").write_text('{"changed":true}')
+                self.assertNotEqual(source_snapshot(root)["sha256"], before["sha256"])
+
+    def test_missing_runtime_source_is_still_blocked(self):
+        from phuong_anA.contract import source_snapshot
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            module = self.source_fixture(root)
+            (root / "mi_rfe_svm_colab/common.py").unlink()  # Only this synthetic temporary fixture.
+            with patch("phuong_anA.contract.core", return_value=module), \
+                 self.assertRaisesRegex(Blocked, "Missing required A1 runtime source: mi_rfe_svm_colab/common.py"):
+                source_snapshot(root)
+
+    def test_evidence_collection_errors_never_become_pass(self):
+        from phuong_anA import selftest
+        successful = Mock(testsRun=1, skipped=[], failures=[], errors=[])
+        successful.wasSuccessful.return_value = True
+        for failure in ("source", "environment"):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as temporary:
+                evidence = Path(temporary) / "evidence.json"
+                with patch.object(selftest.unittest.defaultTestLoader, "discover", return_value=unittest.TestSuite()), \
+                     patch.object(selftest.unittest, "TextTestRunner") as runner, \
+                     patch.object(selftest, "source_snapshot") as snapshot, \
+                     patch.object(selftest, "environment") as env, \
+                     patch.object(selftest.sys, "stderr", new_callable=io.StringIO) as diagnostics:
+                    runner.return_value.run.return_value = successful
+                    snapshot.return_value = {"sha256": "a"*64}
+                    env.return_value = {"versions": {}}
+                    if failure == "source":
+                        snapshot.side_effect = Blocked("Missing required runtime source")
+                    else:
+                        env.side_effect = RuntimeError("Environment unavailable")
+                    self.assertEqual(selftest.main(["--source", temporary, "--evidence", str(evidence)]), 1)
+                    self.assertIn("EVIDENCE FAIL:", diagnostics.getvalue())
+                record = read(evidence)
+                self.assertEqual(record["status"], "FAIL")
+                self.assertEqual(record["tests_run"], 1)
+                self.assertEqual(len(record["diagnostic_errors"]), 1)
+                self.assertIsNone(record["source_sha256"] if failure == "source" else record["environment"])

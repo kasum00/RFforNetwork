@@ -167,6 +167,12 @@ def inspect(request):
     parent, proof = evidence(request, pre)
     integrity, schema, labels = validate_manifest(folder, source, parent, proof)
     module = core(source)
+    split_paths = {role: module.resolve_split(folder, role) for role in ("train", "val", "test")}
+    # load_feature_schema also reads the Train footer. Verify input bytes first
+    # so corrupt inputs are rejected by the checksum gate, before any parser.
+    for role in ("train", "val"):
+        if sha(split_paths[role]) != integrity["output_sha256"][role]["model_sha256"]:
+            raise Blocked("Train/Validation Parquet SHA256 differs: " + role)
     from stage4_mi.mi_selection import load_feature_schema, validate_feature_names, PROVENANCE_TOKENS
     names = validate_feature_names(load_feature_schema(folder))
     if (len(names) != 380 or schema.get("aggregate_feature_count") != 380
@@ -178,7 +184,7 @@ def inspect(request):
     import pyarrow.parquet as pq
     splits, identities = {}, []
     for role in ("train", "val", "test"):
-        path = module.resolve_split(folder, role)
+        path = split_paths[role]
         st = path.stat()  # No Test open/hash/read_table call.
         identity = (st.st_dev, st.st_ino)
         if identity[1] and identity in identities:
@@ -192,8 +198,6 @@ def inspect(request):
         row = {"path": str(path), "rows": n, "bytes": st.st_size, "mtime_ns": st.st_mtime_ns,
                "declared_sha256": integrity["output_sha256"][role]["model_sha256"]}
         if role != "test":
-            if sha(path) != row["declared_sha256"]:
-                raise Blocked("Train/Validation Parquet SHA256 differs: " + role)
             parquet = pq.ParquetFile(path)
             if (parquet.schema_arrow.names != names + ["Window_Label"] or parquet.metadata.num_rows != n
                     or not all(pa.types.is_integer(f.type) or pa.types.is_floating(f.type) for f in parquet.schema_arrow)):

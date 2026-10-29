@@ -14,6 +14,18 @@ SCIENTIFIC = {"scientific_status": STATUS, "official_status": "OFFICIAL_BLOCKED"
               "official_reproduction": False, "test_values_read": False,
               "final_refit_authorized": False}
 
+# Actual imports used by A1 or by the reused A0 modules at import time.
+# Historical Stage3/29 generators are not executed by A1. Their frozen
+# provenance is bound through evidence/cicflow_split_evidence.json instead.
+RUNTIME_SOURCE_FILES = (
+    "colab/cicflow_reference_pipeline.py",
+    "mi_rfe_svm_colab/__init__.py", "mi_rfe_svm_colab/common.py",
+    "mi_rfe_svm_colab/runner.py", "mi_rfe_svm_colab/dataset.py",
+    "mi_rfe_svm_colab/local_progress.py", "mi_rfe_svm_colab/preflight.py",
+    "mi_rfe_svm_colab/artifact_reuse.py", "mi_rfe_svm_colab/drive_checkpoint.py",
+    "phuong_anA/evidence/cicflow_split_evidence.json",
+)
+
 
 def scientific(source):
     result = json.loads(json.dumps(core(source).contract("svm")))
@@ -45,13 +57,20 @@ def paths(request):
 
 def source_snapshot(source):
     source = Path(source).resolve()
+    required = [source / p for p in RUNTIME_SOURCE_FILES]
+    missing = [p.relative_to(source).as_posix() for p in required if not p.is_file()]
+    if missing:
+        raise Blocked("Missing required A1 runtime source: " + ", ".join(missing))
     files = [p for p in (source / "phuong_anA").rglob("*") if p.is_file()
              and p.suffix in (".py", ".json", ".ipynb", ".txt")
              and not any(part in p.parts for part in ("__pycache__", "reports", "runs", ".ipynb_checkpoints"))]
     for folder in ("mi_rfe_svm_colab",):
         files += [p for p in (source / folder).glob("*.py")]
     files += [source / p for p in core(source).SOURCE_FILES]
-    files += [source / p for p in ("stage3_v2_windows.py", "stage29_v2_allocation.py", "stage29_cplus_integrity.py")]
+    files += required
+    missing = [p.relative_to(source).as_posix() for p in files if not p.is_file()]
+    if missing:
+        raise Blocked("Missing required A1 runtime source: " + ", ".join(sorted(set(missing))))
     records = {p.relative_to(source).as_posix(): sha(p) for p in sorted(set(files))}
     return {"files": records, "sha256": digest(records)}
 
