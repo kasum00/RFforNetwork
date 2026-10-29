@@ -132,10 +132,7 @@ def run(request):
                             # A prior upload failure can leave valid newer LOCAL k.
                             # Re-commit that verified prefix before starting any new fit.
                             history = KProgress(state, identity, ranked, sha(state / "rfe_state.json"))
-                            progress.completed = len(history.rows)
-                            if history.rows:
-                                best = choose(history.rows, ranked)
-                                progress.best_k, progress.best_accuracy = best["k"], best["accuracy"]
+                            progress.restore_history(history.rows, ranked)
                             def commit_k():
                                 current = KProgress(state, identity, ranked, sha(state / "rfe_state.json"))
                                 for row in current.rows:

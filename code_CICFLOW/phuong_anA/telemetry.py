@@ -1,10 +1,24 @@
 """Measured heartbeat and safe-boundary session budget; no synthetic progress."""
 import json
+import math
+import re
 import shutil
 import threading
 import time
 from pathlib import Path
 from .contract import ALGORITHM, Blocked, atomic, redact, utc
+from mi_rfe_svm_colab.local_progress import choose, validate_rows
+
+
+def durable_completed_k(rows):
+    """Only the verified ledger's contiguous k stages count as durable work."""
+    stages = [row["record"]["stage"] for row in rows if row["record"]["stage"].startswith("k_")]
+    if any(re.fullmatch(r"k_[0-9]{3}", stage) is None for stage in stages):
+        raise Blocked("Invalid durable k stage")
+    numbers = sorted(int(stage[2:]) for stage in stages)
+    if numbers != list(range(1, len(numbers)+1)) or len(numbers) > 100:
+        raise Blocked("Durable k stages must be a contiguous prefix of 1..100")
+    return len(numbers)
 
 
 class Pause(Exception):
@@ -81,8 +95,33 @@ class Telemetry:
         if shutil.disk_usage(self.store.local).free < 1024**3:
             raise Blocked("Local disk below 1 GiB safe-boundary headroom")
 
+    def restore_history(self, rows, ranked):
+        """Caller supplies verified local k history; this never commits it."""
+        validate_rows(rows, ranked)
+        best = choose(rows, ranked) if rows else None
+        with self.lock:
+            self.completed = len(rows)
+            self.best_k = best["k"] if best is not None else None
+            self.best_accuracy = best["accuracy"] if best is not None else None
+
     def event(self, event, **details):
         with self.lock:
+            if event == "k_completed":
+                # search() emits this k's measured validation_accuracy and best_k.
+                # Derive the running best by the same strict-greater rule. Missing
+                # scientific fields raise; no display fallback can fabricate data.
+                k, accuracy = details["k"], details["validation_accuracy"]
+                if (type(k) is not int or k != self.completed+1 or not 1 <= k <= 100
+                        or details["completed_k"] != k or self.current_k != k
+                        or isinstance(accuracy, bool) or not isinstance(accuracy, (int, float))
+                        or not math.isfinite(accuracy) or not 0 <= accuracy <= 1):
+                    raise Blocked("Invalid measured k completion event")
+                improves = self.best_accuracy is None or accuracy > self.best_accuracy
+                winner_k = k if improves else self.best_k
+                winner_accuracy = accuracy if improves else self.best_accuracy
+                if type(details["best_k"]) is not int or details["best_k"] != winner_k:
+                    raise Blocked("Event best_k differs from Validation Accuracy/smallest-k tie rule")
+                self.best_k, self.best_accuracy = winner_k, winner_accuracy
             if event.startswith("mi_"):
                 self.stage = "MI TOP100"
             if event.startswith("rfe_"):
@@ -97,7 +136,6 @@ class Telemetry:
                 self.completed = details["completed_k"]
             if event == "k_completed":
                 self.completed = details["k"]
-                self.best_k, self.best_accuracy = details["best_k"], details["best_validation_accuracy"]
             row = {"utc": utc(), "event": event, "identity": self.store.identity["sha256"], **details}
             with (self.store.local / "events.jsonl").open("a", encoding="utf-8") as f:
                 f.write(redact(json.dumps(row, allow_nan=False)) + "\n")
@@ -119,8 +157,7 @@ class Telemetry:
                 "peak_process_rss_bytes_sampled_this_session": self.peak_rss,
                 "best_k_so_far": self.best_k, "best_validation_accuracy": self.best_accuracy,
                 "checkpoint_status": self.checkpoint_status, "last_checkpoint": self.last_checkpoint,
-                "durable_last_completed_k": max([int(r["record"]["stage"][2:]) for r in self.store.rows
-                    if r["record"]["stage"].startswith("k_")], default=0),
+                "durable_last_completed_k": durable_completed_k(self.store.rows),
                 "test_values_read": False}
 
     def emit(self):
