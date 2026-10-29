@@ -68,6 +68,7 @@ class FinalTests(unittest.TestCase):
         self.state, self.remote = self.root / "state", self.root / "remote"
         self.state.mkdir()
         self.remote.mkdir()
+        self.test_request = {"source": str(SOURCE), "mode": "finalize", "phase": "test"}
         self.names = [f"f{i}" for i in range(380)]
         self.top = self.names[:100]
         self.identity = {"format": FORMAT, "spec": {"experiment": "mi_rfe_svm", "config": "FW256_FS8"},
@@ -119,17 +120,36 @@ class FinalTests(unittest.TestCase):
             validate_state(self.state, self.identity, final_required=True)
 
     def invoke_test(self, loader):
-        model, scaler, module = Mock(), Mock(), Mock()
+        model, scaler, checkpoint = Mock(), Mock(), Mock()
         model.get_params.return_value = SVM_PARAMS.copy()
         model.n_features_in_ = scaler.n_features_in_ = 1
         model.predict.return_value = np.array([0, 1])
         scaler.transform.side_effect = lambda X: X
-        module.SVM_PARAMS = SVM_PARAMS
-        module.metrics.return_value = {"accuracy": 1.0, "confusion_matrix_labels_0_benign_1_attack": [[1, 0], [0, 1]]}
-        with patch("mi_rfe_svm_colab.runner.core", return_value=module), patch("joblib.load", side_effect=[model, scaler]), \
-             patch("mi_rfe_svm_colab.runner.inspect", return_value=self.identity["dataset_audit"]), \
-             patch("mi_rfe_svm_colab.runner.raw_split", side_effect=loader) as raw:
-            result = test_once({}, self.state, self.root, self.remote, self.identity, Mock(), Mock())
+
+        def load_after_claim(request, audit, local, identity, role, *, test_claim):
+            # Mock only the dataset I/O boundary. Claim creation/readback,
+            # final-state validation and core(source) all run unchanged.
+            self.assertEqual(request, self.test_request)
+            self.assertEqual(audit, self.identity["dataset_audit"])
+            self.assertEqual(local, self.root)
+            self.assertEqual(identity, self.identity)
+            self.assertEqual(role, "test")
+            self.assertEqual(read(self.remote / "TEST_CLAIM.json"), test_claim)
+            self.assertEqual(read(self.state / "TEST_CLAIM.json"), test_claim)
+            self.assertEqual(test_claim["identity"], self.identity["sha256"])
+            self.assertEqual(test_claim["final_state"], digest(read(self.state / "final_state.json")))
+            self.assertEqual(test_claim["evaluation_number"], 1)
+            self.assertIs(test_claim["retry_forbidden"], True)
+            checkpoint.assert_called_once_with(force=True, reason="final_refit_before_test")
+            return loader(request, audit, local, identity, role, test_claim=test_claim)
+
+        with patch("joblib.load", side_effect=[model, scaler]) as model_load, \
+             patch("mi_rfe_svm_colab.runner.inspect", return_value=self.identity["dataset_audit"]) as inspect_data, \
+             patch("mi_rfe_svm_colab.runner.raw_split", side_effect=load_after_claim) as raw:
+            self.invocation = {"model": model, "scaler": scaler, "model_load": model_load,
+                               "inspect": inspect_data, "raw": raw, "checkpoint": checkpoint}
+            result = test_once(self.test_request, self.state, self.root, self.remote,
+                               self.identity, Mock(), checkpoint)
         return result, model, raw
 
     def test_test_claim_precedes_load_and_second_call_does_not_predict(self):
@@ -139,16 +159,35 @@ class FinalTests(unittest.TestCase):
         result, model, raw = self.invoke_test(load)
         self.assertEqual(raw.call_count, 1)
         self.assertEqual(model.predict.call_count, 1)
+        self.assertEqual(result["test_evaluation_calls"], 1)
+        claims_before = {str(p): info(p) for p in
+                         (self.remote / "TEST_CLAIM.json", self.state / "TEST_CLAIM.json")}
         second, second_model, second_raw = self.invoke_test(lambda *a, **kw: self.fail("Test loaded twice"))
         self.assertEqual(result, second)
         second_model.predict.assert_not_called()
         second_raw.assert_not_called()
+        self.invocation["model_load"].assert_not_called()
+        self.invocation["inspect"].assert_not_called()
+        self.invocation["checkpoint"].assert_not_called()
+        self.assertEqual(claims_before, {p: info(p) for p in claims_before})
 
     def test_interrupted_test_claim_blocks_retry(self):
-        with self.assertRaises(OSError):
+        with self.assertRaisesRegex(OSError, "lost runtime"):
             self.invoke_test(lambda *a, **kw: (_ for _ in ()).throw(OSError("lost runtime")))
-        with self.assertRaises(Blocked):
+        self.invocation["raw"].assert_called_once()
+        self.invocation["model"].predict.assert_not_called()
+        self.assertFalse((self.state / "test_result.json").exists())
+        claims_before = {str(p): info(p) for p in
+                         (self.remote / "TEST_CLAIM.json", self.state / "TEST_CLAIM.json")}
+        with self.assertRaisesRegex(Blocked, "Test was already claimed without a verified result"):
             self.invoke_test(lambda *a, **kw: self.fail("Test retry forbidden"))
+        self.invocation["model_load"].assert_not_called()
+        self.invocation["inspect"].assert_not_called()
+        self.invocation["raw"].assert_not_called()
+        self.invocation["model"].predict.assert_not_called()
+        self.invocation["checkpoint"].assert_not_called()
+        self.assertFalse((self.state / "test_result.json").exists())
+        self.assertEqual(claims_before, {p: info(p) for p in claims_before})
 
     def test_saved_scaler_and_transforms_reused_without_refit(self):
         # Independent tiny cache fixture, real scaler only; no SVC.
@@ -209,7 +248,11 @@ class FinalTests(unittest.TestCase):
         local.mkdir()
         manager = DriveCheckpoint(local, self.remote, self.identity)
         manager.sync(self.state, reason="final", safe_boundary=True, force=True)
-        self.invoke_test(lambda *a, **kw: (np.zeros((2, 380), np.float32), np.array([0, 1])))
+        test_result, model, raw = self.invoke_test(
+            lambda *a, **kw: (np.zeros((2, 380), np.float32), np.array([0, 1])))
+        self.assertEqual(test_result["test_evaluation_calls"], 1)
+        raw.assert_called_once()
+        model.predict.assert_called_once()
         atomic(self.state / "result.json", result_record(self.state, self.identity))
         atomic(self.state / "hyperparameters.json", self.identity["contract"])
         atomic(self.state / "preflight_audit.json", {"status": "PASS", "identity": self.identity})
@@ -220,11 +263,17 @@ class FinalTests(unittest.TestCase):
         manager.sync(self.state, reason="complete", safe_boundary=True, force=True)
         with patch("joblib.load", side_effect=AssertionError("Verify must not deserialize models")):
             self.assertEqual(publish(self.state, self.remote, self.identity)["status"], "PASS")
-            before = {name: info(self.remote / name) for name in REQUIRED}
+            before = {name: info(self.remote / name) for name in
+                      (*REQUIRED, "artifact_manifest.json", "RUN_COMPLETE.json")}
             self.assertEqual(verify(self.remote)["test_evaluation_calls"], 1)
             self.assertEqual(publish(self.state, self.remote, self.identity)["status"], "PASS")
-            self.assertEqual(before, {name: info(self.remote / name) for name in REQUIRED})
+            self.assertEqual(before, {name: info(self.remote / name) for name in before})
+            self.assertEqual(model.predict.call_count, 1)
         with (self.remote / "model.joblib").open("ab") as f:
             f.write(b"corruption")
         with self.assertRaises(Blocked):
             verify(self.remote)
+        corrupt_artifact = info(self.remote / "model.joblib")
+        with self.assertRaisesRegex(Blocked, "Never overwrite a different existing artifact: model.joblib"):
+            publish(self.state, self.remote, self.identity)
+        self.assertEqual(info(self.remote / "model.joblib"), corrupt_artifact)
