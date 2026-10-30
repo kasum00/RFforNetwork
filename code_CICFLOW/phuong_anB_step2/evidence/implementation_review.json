@@ -1,0 +1,55 @@
+{
+  "input_notebook": "E:/PHUONG_ANA_A1_COLAB_CLEAN_V2 (1).ipynb",
+  "input_sha256": "6091e104452e98fb2a94c27499f98ac9f2cb87186bb92d16d506d8cb4105abfa",
+  "a1_notebook_commit": "38e182187d46a1355535b96b12621a5ce00ae457",
+  "a1_source": {
+    "phuong_anA/cli.py": "0626c2ec6b9ece8f3f5c02928899b7441b340250a529d6f568c2290f1d1f7216",
+    "phuong_anA/contract.py": "613068b6f958ab2126ae6985b80962365e6ac2b9796a1c52ea9262d1097670af",
+    "phuong_anA/controller.py": "9e8727b6f48d8eaf8b5a3fb4675fbfd70427ca3dc7f6eac5116cf6041e717171",
+    "phuong_anA/dataset.py": "4f11a3dc6039665e7a9792ae6c414dd0f9ea2161032d4c051c872c55ff6c8c54",
+    "phuong_anA/migration.py": "d606b6472c24e4f63ee703cdcac237a523854aa98493ea5a7829888224403ca9",
+    "phuong_anA/pipeline.py": "df8317ad76d7e119382702ea3b2ac05d04b065313f0586f8ff4e9a040391c805",
+    "phuong_anA/preflight.py": "93047cb13a7d6c71fd093313a18c68450e1270bd319840f51b9b7e9a38291f93",
+    "phuong_anA/recovery.py": "fd74efa4f1f71771c00f33902ad5f037ec3287391d06c24f441638fd9f9b289d",
+    "phuong_anA/results.py": "8c74ee0c021a9036606498665d3ece2c18ac50690b7d6f17c590bde4693c29c3",
+    "phuong_anA/rfe.py": "97d28e355d48c1884105d1694eb48d909411cd8f69a2bd25726957d503ecfee5",
+    "phuong_anA/selftest.py": "f4c58070309765fcd35eb6cffb70502a2941f17965dc45e46eecb445c3abe3dd",
+    "phuong_anA/store.py": "3c36efa653fc8b5f0dae142ab1d6adb354dbcfa17ac6f8877466c7738ec6b7c2",
+    "phuong_anA/telemetry.py": "d8837bfa45b8882d9964ca7d452cf30bbf24bf90a23f4722cba13f52c0b07107",
+    "phuong_anA/__init__.py": "fbb59f8863007371b1f337880da678460a04c8687fb9ce1adf4186c4c2584c58"
+  },
+  "existing_b_policy_found": true,
+  "policy_choice_pending": false,
+  "scientific_programs_executed": false,
+  "reference_source": {
+    "filename": "run_phuong_anB.py",
+    "provided_as": "full text pasted by user in conversation",
+    "local_file_available": false,
+    "policy": {
+      "plan": "phuong_anB_coarse_to_fine_v1",
+      "coarse": [
+        10,
+        20,
+        30,
+        50,
+        75,
+        100
+      ],
+      "radius": 5,
+      "coarse_tie": "smallest k at maximum Validation Accuracy",
+      "fine_order": "ascending, skip tried k"
+    },
+    "reference_excerpt": "evidence/original_policy_excerpt.py",
+    "reference_excerpt_sha256": "8a875cfcceb0d97d8d7514c36639dc2a5191b433a404c3eb83c58070599808fc"
+  },
+  "experimental_algorithm_change": {
+    "rfe_step": {
+      "from": 1,
+      "to": 2
+    },
+    "original_policy_unchanged": true,
+    "dataset": "CICFLOWMETER_FEATURE_CSV",
+    "prior_proposed_policies_removed": true,
+    "algorithm_version": "MI_RFE_SVM_B_STEP2_COARSE6_RADIUS5_V2"
+  }
+}

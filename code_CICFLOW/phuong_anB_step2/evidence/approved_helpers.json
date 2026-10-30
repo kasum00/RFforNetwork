@@ -1,0 +1,62 @@
+{
+  "format": "phuong_anB_step2.approved_helpers.v1",
+  "scope": "exact locally reviewed A1 numerical/helper source; runtime equivalence not benchmarked",
+  "files": {
+    "mi_rfe_svm_colab/artifact_reuse.py": {
+      "bytes": 5201,
+      "sha256": "a6ac22d39e1267dfc0cbdd887bf46103f3b2edcd19d0e831d0378f853ab333b8"
+    },
+    "mi_rfe_svm_colab/common.py": {
+      "bytes": 6269,
+      "sha256": "7170d7b956ddad12e805ac1da5f52a70ca5dde5fdc0252b69642d379f6985e4a"
+    },
+    "mi_rfe_svm_colab/dataset.py": {
+      "bytes": 5254,
+      "sha256": "621af3fd6a2d20c94cc258c4b55081503669ddd5751f5143cbb688b38c33f3cc"
+    },
+    "mi_rfe_svm_colab/drive_checkpoint.py": {
+      "bytes": 13097,
+      "sha256": "22d1491bbba2478a84d2a537d4fbb7e4ac3e728bb4731907c797cd78974d8d19"
+    },
+    "mi_rfe_svm_colab/local_progress.py": {
+      "bytes": 3033,
+      "sha256": "a950d9c10af52165745965e20ba1718854e8dd66a74b767b0ad5bf9f7cd1978a"
+    },
+    "mi_rfe_svm_colab/preflight.py": {
+      "bytes": 8489,
+      "sha256": "e306b5e20d37e9e046e592d851ff408af11bf41e3214fb307e56dfb6c18ffcff"
+    },
+    "mi_rfe_svm_colab/runner.py": {
+      "bytes": 25472,
+      "sha256": "1bd01df19317ae9a96183cf7d497a1c771b99fce25cf31b40aec5cc5a4f8ba36"
+    },
+    "mi_rfe_svm_colab/selftest.py": {
+      "bytes": 1314,
+      "sha256": "253f21df297895ef58ec82678e40e344e974a870c5937efdc2de08b26436ab1b"
+    },
+    "mi_rfe_svm_colab/verification.py": {
+      "bytes": 9881,
+      "sha256": "c7a479654671b5d9e6aa2939cbc6190313ba55681fa0a4d50575dbab3d710e36"
+    },
+    "mi_rfe_svm_colab/__init__.py": {
+      "bytes": 75,
+      "sha256": "9a17812b547c8f2a124212ab9c2f422d3abf67a88e896761e8702c70d2e9a979"
+    },
+    "colab/cicflow_reference_pipeline.py": {
+      "bytes": 63984,
+      "sha256": "63342af97b603cb965f4ca758a2bf9fa59cab4e0d83b171cec7bef4118714965"
+    },
+    "colab/test_cicflow_reference_pipeline.py": {
+      "bytes": 18187,
+      "sha256": "835018ebbc7ed7ac77f0d0b7476cb62b7f70332134a854be3f0f311ca6db7cca"
+    },
+    "stage4_mi/mi_selection.py": {
+      "bytes": 29333,
+      "sha256": "39529aba8cb5f0964382aac871facf2f224fcb9d4e941fc804418bfde4530e02"
+    },
+    "stage5_rfe/rfe_selection.py": {
+      "bytes": 32706,
+      "sha256": "1d67532bb97f6b6bbbcd98ae66ebf7ef8cee83f77e900ace58b4147f31735a6f"
+    }
+  }
+}
