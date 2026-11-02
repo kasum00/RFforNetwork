@@ -115,9 +115,12 @@ class AdmissionReports(unittest.TestCase):
         once(root / "results/SELECTION_COMPLETE.json", {"status": "SELECTION_COMPLETE"})
         def git(args, **kw):
             return SimpleNamespace(stdout="a"*40 if "rev-parse" in args else "")
+        # Resolve the parquet module before patching the worker's import hook.
+        # Otherwise mock.patch() itself can trigger the guarded import.
+        import pyarrow.parquet as parquet
         with patch("stage9_svm_final.selection_worker.subprocess.run", side_effect=git), \
              patch("stage9_svm_final.selection_worker.importlib.import_module", side_effect=AssertionError("import before source hashes")), \
-             patch("pyarrow.parquet.read_table", side_effect=AssertionError("unexpected Test read")):
+             patch.object(parquet, "read_table", side_effect=AssertionError("unexpected Test read")):
             with self.assertRaisesRegex(Blocked, "source byte mismatch"):
                 verify({**self.request, "selection_source": str(source)})
 
@@ -161,7 +164,7 @@ class AdmissionReports(unittest.TestCase):
              patch("stage9_svm_final.preflight.verify_selection", return_value=selected), \
              patch("stage9_svm_final.preflight.resource_gate", return_value={"status": "PASS"}):
             with self.assertRaisesRegex(Blocked, "unit-test PASS"):
-                review(self.request, need_fit=True)
+                review({**self.request, "git_commit": "a" * 40}, need_fit=True)
 
     def test_preflight_rejects_archived_current_preprocessing_difference(self):
         selected = dict(verified_helpers={"colab/cicflow_reference_pipeline.py": "0"*64})

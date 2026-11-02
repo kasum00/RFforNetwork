@@ -20,6 +20,9 @@ def source_snapshot(source):
 
 
 def check_source(request):
+    approved_commit = request.get("git_commit")
+    if not isinstance(approved_commit, str) or len(approved_commit) != 40 or any(c not in "0123456789abcdefABCDEF" for c in approved_commit):
+        raise Blocked("Missing or invalid approved git_commit in Stage9 request")
     repo = Path(request["source"]).resolve().parent
     for args, expected in ((("rev-parse", "HEAD"), request["git_commit"]), (("status", "--porcelain"), "")):
         actual = subprocess.run(["git", "-C", str(repo), *args], check=True, text=True, capture_output=True).stdout.strip()
@@ -76,6 +79,9 @@ def review(request, *, need_fit=False):
             or any(resolved[k] != v for k, v in SVM_PARAMS.items())):
         raise Blocked("BLOCKED_SCIENTIFIC_CONTRACT: final scaler/SVC source mismatch")
     labels = positive_labels(selected["audit"])
+    approved_commit = request.get("git_commit")
+    if not isinstance(approved_commit, str) or len(approved_commit) != 40 or any(c not in "0123456789abcdefABCDEF" for c in approved_commit):
+        raise Blocked("Missing or invalid approved git_commit in Stage9 request")
     identity = dict(format=FORMAT, method=request["method"], config=request["config"],
         run_id=request["run_id"], selection_run_id=request["selection_run_id"],
         selection_identity=selected["identity"]["sha256"], selection_checkpoint_sha256=selected["checkpoint_sha256"],
